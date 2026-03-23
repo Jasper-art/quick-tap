@@ -12,7 +12,7 @@
     <title>QuickTap Pro Zambia</title>
 
     <!-- INLINE MANIFEST — injected via JS so it works in a single HTML file -->
-    <link rel="manifest" href="blob:null/1899c153-9992-4fd2-9a10-1afd91b9a339"><script>
+    <link rel="manifest" href="#" id="manifest-placeholder"><script>
 (function() {
       try {
         function generateIcon(size) {
@@ -66,20 +66,19 @@
 
     <!-- INLINE SERVICE WORKER — registers a minimal SW so browser counts this as a PWA -->
     <script>
-  if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         try {
           const swCode = `
-            const CACHE_NAME = 'quicktap-pro-v2';
-            const urlsToCache = [self.location.origin + '/'];
-
+            const CACHE_NAME = 'quicktap-pro-v3';
             self.addEventListener('install', e => {
               self.skipWaiting();
               e.waitUntil(
-                caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).catch(() => {})
+                caches.open(CACHE_NAME).then(cache => {
+                  return cache.addAll([self.registration.scope]).catch(() => {});
+                })
               );
             });
-
             self.addEventListener('activate', e => {
               e.waitUntil(
                 caches.keys().then(keys =>
@@ -87,30 +86,34 @@
                 ).then(() => self.clients.claim())
               );
             });
-
             self.addEventListener('fetch', e => {
               if (e.request.method !== 'GET') return;
+              if (!e.request.url.startsWith('http')) return;
               e.respondWith(
                 caches.match(e.request).then(cached => {
-                  if (cached) return cached;
-                  return fetch(e.request).then(resp => {
-                    if (!resp || resp.status !== 200 || resp.type === 'opaque') return resp;
-                    const clone = resp.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                  const fetchPromise = fetch(e.request).then(resp => {
+                    if (resp && resp.status === 200 && resp.type !== 'opaque') {
+                      const clone = resp.clone();
+                      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                    }
                     return resp;
                   }).catch(() => cached);
+                  return cached || fetchPromise;
                 })
               );
             });
           `;
-          const blob = new Blob([swCode], {type: 'application/javascript'});
-          const swUrl = URL.createObjectURL(blob);
+
+          // Use a data URL instead of blob URL — works on GitHub Pages
+          const swUrl = 'data:application/javascript;base64,' + btoa(swCode);
           navigator.serviceWorker.register(swUrl, {scope: './'})
-            .then(reg => {
-              console.log('QuickTap SW registered:', reg.scope);
-              reg.update();
-            })
-            .catch(err => console.log('SW reg failed:', err));
+            .then(reg => { console.log('QuickTap SW registered:', reg.scope); reg.update(); })
+            .catch(() => {
+              // Fallback: try registering sw.js if it exists alongside the HTML
+              navigator.serviceWorker.register('./sw.js', {scope: './'})
+                .then(reg => console.log('QuickTap SW (sw.js) registered:', reg.scope))
+                .catch(err => console.log('SW unavailable:', err));
+            });
         } catch(e) { /* silently fail */ }
       });
     }
