@@ -54,12 +54,17 @@
           categories: ["business", "finance", "productivity"],
           lang: "en-ZM"
         };
-        const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         const url  = URL.createObjectURL(blob);
-        const link = document.createElement('link');
-        link.rel   = 'manifest';
-        link.href  = url;
-        document.currentScript.parentNode.insertBefore(link, document.currentScript);
+        const placeholder = document.getElementById('manifest-placeholder');
+        if (placeholder) {
+          placeholder.href = url;
+        } else {
+          const link = document.createElement('link');
+          link.rel = 'manifest';
+          link.href = url;
+          document.head.appendChild(link);
+        }
       } catch(e) { /* silently fail */ }
     })();
     </script>
@@ -68,53 +73,9 @@
     <script>
 if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        try {
-          const swCode = `
-            const CACHE_NAME = 'quicktap-pro-v3';
-            self.addEventListener('install', e => {
-              self.skipWaiting();
-              e.waitUntil(
-                caches.open(CACHE_NAME).then(cache => {
-                  return cache.addAll([self.registration.scope]).catch(() => {});
-                })
-              );
-            });
-            self.addEventListener('activate', e => {
-              e.waitUntil(
-                caches.keys().then(keys =>
-                  Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-                ).then(() => self.clients.claim())
-              );
-            });
-            self.addEventListener('fetch', e => {
-              if (e.request.method !== 'GET') return;
-              if (!e.request.url.startsWith('http')) return;
-              e.respondWith(
-                caches.match(e.request).then(cached => {
-                  const fetchPromise = fetch(e.request).then(resp => {
-                    if (resp && resp.status === 200 && resp.type !== 'opaque') {
-                      const clone = resp.clone();
-                      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-                    }
-                    return resp;
-                  }).catch(() => cached);
-                  return cached || fetchPromise;
-                })
-              );
-            });
-          `;
-
-          // Use a data URL instead of blob URL — works on GitHub Pages
-          const swUrl = 'data:application/javascript;base64,' + btoa(swCode);
-          navigator.serviceWorker.register(swUrl, {scope: './'})
-            .then(reg => { console.log('QuickTap SW registered:', reg.scope); reg.update(); })
-            .catch(() => {
-              // Fallback: try registering sw.js if it exists alongside the HTML
-              navigator.serviceWorker.register('./sw.js', {scope: './'})
-                .then(reg => console.log('QuickTap SW (sw.js) registered:', reg.scope))
-                .catch(err => console.log('SW unavailable:', err));
-            });
-        } catch(e) { /* silently fail */ }
+        navigator.serviceWorker.register('./sw.js', {scope: './'})
+          .then(reg => { console.log('QuickTap SW registered:', reg.scope); reg.update(); })
+          .catch(err => console.log('SW unavailable (add sw.js to repo):', err));
       });
     }
     </script>
