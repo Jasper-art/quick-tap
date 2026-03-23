@@ -13,31 +13,43 @@
 
     <!-- INLINE MANIFEST — injected via JS so it works in a single HTML file -->
     <link rel="manifest" href="blob:null/1899c153-9992-4fd2-9a10-1afd91b9a339"><script>
-    (function() {
+(function() {
       try {
-        // Build the manifest as a blob and inject it as a <link> tag
+        function generateIcon(size) {
+          const canvas = document.createElement('canvas');
+          canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          const r = size * 0.2;
+          ctx.beginPath();
+          ctx.moveTo(r, 0); ctx.lineTo(size - r, 0);
+          ctx.quadraticCurveTo(size, 0, size, r);
+          ctx.lineTo(size, size - r);
+          ctx.quadraticCurveTo(size, size, size - r, size);
+          ctx.lineTo(r, size); ctx.quadraticCurveTo(0, size, 0, size - r);
+          ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
+          ctx.closePath();
+          ctx.fillStyle = '#059669';
+          ctx.fill();
+          ctx.fillStyle = 'white';
+          ctx.font = `900 ${size * 0.55}px system-ui`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('⚡', size / 2, size / 2 + size * 0.03);
+          return canvas.toDataURL('image/png');
+        }
         const manifest = {
           name: "QuickTap Pro Zambia",
           short_name: "QuickTap",
           description: "POS system for Zambian tuckshops",
           start_url: "./",
+          scope: "./",
           display: "standalone",
-          background_color: "#0a0f0a",
+          background_color: "#ffffff",
           theme_color: "#059669",
           orientation: "portrait-primary",
           icons: [
-            {
-              src: "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23059669'/><text x='96' y='130' font-size='100' text-anchor='middle' font-family='system-ui'>⚡</text></svg>`),
-              sizes: "192x192",
-              type: "image/svg+xml",
-              purpose: "any maskable"
-            },
-            {
-              src: "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23059669'/><text x='256' y='340' font-size='280' text-anchor='middle' font-family='system-ui'>⚡</text></svg>`),
-              sizes: "512x512",
-              type: "image/svg+xml",
-              purpose: "any maskable"
-            }
+            { src: generateIcon(192), sizes: "192x192", type: "image/png", purpose: "any maskable" },
+            { src: generateIcon(512), sizes: "512x512", type: "image/png", purpose: "any maskable" }
           ],
           categories: ["business", "finance", "productivity"],
           lang: "en-ZM"
@@ -48,44 +60,57 @@
         link.rel   = 'manifest';
         link.href  = url;
         document.currentScript.parentNode.insertBefore(link, document.currentScript);
-      } catch(e) { /* silently fail — PWA manifest is optional */ }
+      } catch(e) { /* silently fail */ }
     })();
     </script>
 
     <!-- INLINE SERVICE WORKER — registers a minimal SW so browser counts this as a PWA -->
     <script>
-    if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         try {
           const swCode = `
-            const CACHE = 'quicktap-v1';
+            const CACHE_NAME = 'quicktap-pro-v2';
+            const urlsToCache = [self.location.origin + '/'];
+
             self.addEventListener('install', e => {
               self.skipWaiting();
+              e.waitUntil(
+                caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).catch(() => {})
+              );
             });
+
             self.addEventListener('activate', e => {
-              e.waitUntil(self.clients.claim());
+              e.waitUntil(
+                caches.keys().then(keys =>
+                  Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+                ).then(() => self.clients.claim())
+              );
             });
+
             self.addEventListener('fetch', e => {
-              // Cache-first for same-origin, network-first for others
-              if (e.request.url.startsWith(self.location.origin)) {
-                e.respondWith(
-                  caches.open(CACHE).then(cache =>
-                    cache.match(e.request).then(cached =>
-                      cached || fetch(e.request).then(resp => {
-                        cache.put(e.request, resp.clone());
-                        return resp;
-                      })
-                    )
-                  )
-                );
-              }
+              if (e.request.method !== 'GET') return;
+              e.respondWith(
+                caches.match(e.request).then(cached => {
+                  if (cached) return cached;
+                  return fetch(e.request).then(resp => {
+                    if (!resp || resp.status !== 200 || resp.type === 'opaque') return resp;
+                    const clone = resp.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                    return resp;
+                  }).catch(() => cached);
+                })
+              );
             });
           `;
           const blob = new Blob([swCode], {type: 'application/javascript'});
           const swUrl = URL.createObjectURL(blob);
           navigator.serviceWorker.register(swUrl, {scope: './'})
-            .then(reg => console.log('QuickTap SW registered:', reg.scope))
-            .catch(err => console.log('SW reg failed (needs HTTPS):', err));
+            .then(reg => {
+              console.log('QuickTap SW registered:', reg.scope);
+              reg.update();
+            })
+            .catch(err => console.log('SW reg failed:', err));
         } catch(e) { /* silently fail */ }
       });
     }
@@ -1014,55 +1039,72 @@
     <div id="app" class="flex flex-col lg:flex-row h-screen w-full bg-earth-50 dark:bg-slate-950">
         <div class="flex-1 flex flex-col min-w-0 h-full relative lg:border-r border-earth-200 dark:border-slate-800">
             <!-- HEADER -->
-            <header class="px-6 py-8 flex flex-col gap-6 bg-white dark:bg-slate-900 border-b border-earth-100 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
+<header class="px-4 py-3 flex flex-col gap-3 bg-white dark:bg-slate-900 border-b border-earth-100 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
                 <div class="flex justify-between items-center">
                     <h1 id="header-biz-name" style="font-size:10px;font-weight:900;letter-spacing:0.3em;text-transform:uppercase;color:rgba(74,68,58,0.4);">QuickTap Pro</h1>
                     <button id="pwa-install-btn" onclick="handleInstallClick()" style="display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, rgb(5, 150, 105), rgb(16, 185, 129)); color: white; border: none; padding: 0.5rem 1rem; border-radius: 50px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; box-shadow: rgba(5, 150, 105, 0.4) 0px 2px 12px; animation: 2s ease 0s infinite normal none running pulse-install;">
                         📲 Install App
                     </button>
                 </div>
-                <div class="bg-white dark:bg-slate-900 border border-earth-100 dark:border-slate-800 p-6 shadow-sm flex items-center justify-around text-center w-full max-w-4xl mx-auto" style="border-radius:3rem;">
+          <div class="bg-white dark:bg-slate-900 border border-earth-100 dark:border-slate-800 shadow-sm flex items-center justify-around text-center w-full max-w-4xl mx-auto" style="border-radius:2rem; padding:0.5rem 1rem;">
                     <div class="flex-1 flex flex-col items-center">
-                        <span id="header-total" class="font-black tracking-tighter text-earth-900 dark:text-white" style="font-size:2rem;">K0</span>
-                        <span style="font-size:9px;font-weight:900;color:#059669;text-transform:uppercase;letter-spacing:0.2em;margin-top:0.25rem;">Sales</span>
+                        <span id="header-total" class="font-black tracking-tighter text-earth-900 dark:text-white" style="font-size:1.4rem;">K0</span>
+                        <span style="font-size:8px;font-weight:900;color:#059669;text-transform:uppercase;letter-spacing:0.2em;">Sales</span>
                     </div>
-                    <div class="h-12 bg-earth-100 dark:bg-slate-800 mx-2" style="width:1px;"></div>
+                    <div class="bg-earth-100 dark:bg-slate-800 mx-2" style="width:1px;height:32px;"></div>
                     <div class="flex-1 flex flex-col items-center">
-                        <span id="header-expenses" class="font-black text-rose-500 tracking-tighter" style="font-size:2rem;">K0</span>
-                        <span style="font-size:9px;font-weight:900;color:#f43f5e;text-transform:uppercase;letter-spacing:0.2em;margin-top:0.25rem;">Expenses</span>
+                        <span id="header-expenses" class="font-black text-rose-500 tracking-tighter" style="font-size:1.4rem;">K0</span>
+                        <span style="font-size:8px;font-weight:900;color:#f43f5e;text-transform:uppercase;letter-spacing:0.2em;">Expenses</span>
                     </div>
-                    <div class="h-12 bg-earth-100 dark:bg-slate-800 mx-2" style="width:1px;"></div>
+                    <div class="bg-earth-100 dark:bg-slate-800 mx-2" style="width:1px;height:32px;"></div>
                     <div class="flex-1 flex flex-col items-center">
-                        <span id="header-drawer" class="font-black text-amber-500 tracking-tighter" style="font-size:2rem;">K0</span>
-                        <span style="font-size:9px;font-weight:900;color:#f59e0b;text-transform:uppercase;letter-spacing:0.2em;margin-top:0.25rem;">Drawer</span>
+                        <span id="header-drawer" class="font-black text-amber-500 tracking-tighter" style="font-size:1.4rem;">K0</span>
+                        <span style="font-size:8px;font-weight:900;color:#f59e0b;text-transform:uppercase;letter-spacing:0.2em;">Drawer</span>
                     </div>
                 </div>
-<div class="flex justify-between items-center w-full max-w-4xl mx-auto px-2">
-                    <div class="flex gap-2 md:gap-4 items-start">
-                        <button onclick="toggleTheme()" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moon-icon" class="w-5 h-5 block dark:hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sun-icon" class="w-5 h-5 hidden dark:block"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
-                        </button>
-                        <button onclick="toggleView('credit-ledger')" class="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-2xl active-scale shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><circle cx="12" cy="8" r="2"></circle><path d="M15 13a3 3 0 1 0-6 0"></path></svg>
-                        </button>
-                        <button onclick="openCashUpModal()" class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-2xl active-scale shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path></svg>
-                        </button>
-                        <button onclick="toggleView('expense-log')" class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-2xl active-scale shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="12" cy="12" r="10"></circle><line x1="8" x2="16" y1="12" y2="12"></line></svg>
-                        </button>
-                        <button onclick="lockApp()" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"></path><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        </button>
-                    </div>
-                    <div class="flex gap-2 md:gap-4 items-start">
-                        <button onclick="toggleView('inventory')" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M16.5 9.4 7.55 4.24"></path><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line></svg>
-                        </button>
-                        <button onclick="toggleView('dashboard')" class="p-3 bg-emerald-600 text-white rounded-2xl shadow-lg active-scale">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
-                        </button>
+<style>
+    .nav-label { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.05em; }
+    .nav-btn { display:flex; flex-direction:column; align-items:center; gap:4px; border:none; cursor:pointer; border-radius:14px; padding:10px 12px; min-width:56px; }
+    .nav-btn svg { width:18px; height:18px; flex-shrink:0; }
+    @media (max-width: 767px) { .nav-label { display:none; } .nav-btn { padding:8px !important; min-width:36px !important; } .nav-btn svg { width:16px !important; height:16px !important; } }
+    @media (max-width: 400px) { .nav-btn { padding:6px !important; min-width:30px !important; border-radius:10px; } .nav-btn svg { width:14px !important; height:14px !important; } }
+    @media (max-width: 340px) { .nav-btn { padding:5px !important; min-width:26px !important; border-radius:8px; } .nav-btn svg { width:12px !important; height:12px !important; } }
+</style>
+<div class="w-full max-w-4xl mx-auto px-2">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button onclick="toggleTheme()" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#f7f3e9; color:#2d2923; min-width:56px;" class="active-scale nav-btn dark:bg-slate-800 dark:text-white">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moon-icon" style="display:block;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sun-icon" style="display:none;"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+                                <span class="nav-label">Theme</span>
+                            </button>
+                            <button onclick="toggleView('credit-ledger')" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#eff6ff; color:#2563eb; min-width:56px;" class="active-scale nav-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><circle cx="12" cy="8" r="2"></circle><path d="M15 13a3 3 0 1 0-6 0"></path></svg>
+                                <span class="nav-label">Credit</span>
+                            </button>
+                            <button onclick="openCashUpModal()" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#fffbeb; color:#d97706; min-width:56px;" class="active-scale nav-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path></svg>
+                                <span class="nav-label">Cashup</span>
+                            </button>
+                            <button onclick="toggleView('expense-log')" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#fff1f2; color:#f43f5e; min-width:56px;" class="active-scale nav-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+                                <span class="nav-label">Expenses</span>
+                            </button>
+                            <button onclick="lockApp()" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#f7f3e9; color:#2d2923; min-width:56px;" class="active-scale nav-btn dark:bg-slate-800 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"></path><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                <span class="nav-label">Lock</span>
+                            </button>
+                        </div>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button onclick="toggleView('inventory')" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#f7f3e9; color:#2d2923; min-width:56px;" class="active-scale nav-btn dark:bg-slate-800 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"></path><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line></svg>
+                                <span class="nav-label">Stock</span>
+                            </button>
+                            <button onclick="toggleView('dashboard')" style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:14px; border:none; cursor:pointer; background:#059669; color:white; min-width:56px;" class="active-scale nav-btn shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                                <span class="nav-label">Reports</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -1484,119 +1526,193 @@
         </div>
     </div>
 
-    <div id="cashup-modal" class="fixed inset-0 bg-earth-900/90 backdrop-blur-2xl hidden flex items-center justify-center p-6 text-center" style="z-index: 2500; display: none;">
-        <div class="bg-white dark:bg-slate-900 p-10 w-full max-w-sm space-y-6" style="border-radius:3rem;">
-            <p style="font-size:10px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.1em;">Drawer Reconciliation</p>
-            <p class="text-sm font-black" style="color:rgba(74,68,58,0.6);">Count your physical cash in the drawer:</p>
-            <input type="number" id="recon-count" placeholder="K0" class="w-full font-black text-center bg-transparent outline-none" style="font-size:3rem;">
-            <div id="recon-results" class="hidden space-y-4">
-                <div id="recon-status" class="p-6 rounded-2xl font-black"></div>
+  <div id="cashup-modal" class="fixed inset-0 bg-earth-900/90 backdrop-blur-2xl hidden flex items-center justify-center p-4" style="z-index:2500;display:none;">
+    <div style="background:white;border-radius:2rem;width:100%;max-width:480px;max-height:94vh;max-height:94dvh;display:flex;flex-direction:column;overflow:hidden;">
+
+        <div style="background:#f59e0b;padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <div>
+                <p style="font-size:14px;font-weight:900;color:white;margin:0;">Cash Up</p>
+                <p style="font-size:10px;color:rgba(255,255,255,0.75);margin:2px 0 0;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">End of Day Reconciliation</p>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="closeCashUpModal()" class="py-5 bg-earth-100 dark:bg-slate-800 rounded-2xl font-black uppercase" style="font-size:10px;">Close</button>
-                <button onclick="calculateReconciliation()" class="py-5 bg-amber-500 text-white rounded-2xl font-black uppercase" style="font-size:10px;">Check</button>
+            <button onclick="closeCashUpModal()" style="width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,0.2);border:none;color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+
+        <div style="overflow-y:auto;flex:1;padding:1.25rem;display:flex;flex-direction:column;gap:14px;">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div style="background:#f7f3e9;border-radius:14px;padding:12px;">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);margin:0 0 4px;">Cash Sales</p>
+                    <p id="cu-cash-sales" style="font-size:1.4rem;font-weight:900;color:#059669;margin:0;">K0</p>
+                </div>
+                <div style="background:#f7f3e9;border-radius:14px;padding:12px;">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);margin:0 0 4px;">MoMo Sales</p>
+                    <p id="cu-momo-sales" style="font-size:1.4rem;font-weight:900;color:#0284c7;margin:0;">K0</p>
+                </div>
+                <div style="background:#f7f3e9;border-radius:14px;padding:12px;">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);margin:0 0 4px;">Expenses Out</p>
+                    <p id="cu-expenses" style="font-size:1.4rem;font-weight:900;color:#f43f5e;margin:0;">K0</p>
+                </div>
+                <div style="background:#ecfdf5;border-radius:14px;padding:12px;">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);margin:0 0 4px;">Expected Cash</p>
+                    <p id="cu-expected" style="font-size:1.4rem;font-weight:900;color:#059669;margin:0;">K0</p>
+                </div>
             </div>
+
+            <div style="height:1px;background:#f0ece0;"></div>
+
+            <div>
+                <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);letter-spacing:0.1em;margin-bottom:8px;">Opening Float</p>
+                <div style="position:relative;">
+                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:900;color:#f59e0b;">K</span>
+                    <input type="number" id="cu-float" placeholder="0" oninput="updateCashUpExpected()" style="width:100%;box-sizing:border-box;padding:11px 11px 11px 28px;border-radius:14px;border:1px solid #f0ece0;background:#f7f3e9;font-size:22px;font-weight:900;text-align:center;outline:none;">
+                </div>
+            </div>
+
+            <div>
+                <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);letter-spacing:0.1em;margin-bottom:8px;">Count by Denomination</p>
+                <div style="display:flex;flex-direction:column;gap:6px;" id="denom-rows">
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#fffbeb;border-radius:12px;padding:10px 14px;margin-top:8px;border:1px solid #fcd34d;">
+                    <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:#d97706;">Counted Total</span>
+                    <span id="cu-denom-total" style="font-size:1.3rem;font-weight:900;color:#d97706;">K0</span>
+                </div>
+            </div>
+
+            <div>
+                <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);letter-spacing:0.1em;margin-bottom:6px;">Or enter total directly</p>
+                <div style="position:relative;">
+                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:900;color:#2d2923;">K</span>
+                    <input type="number" id="cu-manual-count" placeholder="0" oninput="syncManualCount()" style="width:100%;box-sizing:border-box;padding:11px 11px 11px 28px;border-radius:14px;border:1px solid #f0ece0;background:#f7f3e9;font-size:22px;font-weight:900;text-align:center;outline:none;">
+                </div>
+            </div>
+
+            <div id="cu-result-box" style="display:none;border-radius:14px;padding:14px 16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:inherit;opacity:0.7;">Expected</span>
+                    <span id="cu-result-expected" style="font-weight:900;font-size:14px;"></span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:inherit;opacity:0.7;">Counted</span>
+                    <span id="cu-result-counted" style="font-weight:900;font-size:14px;"></span>
+                </div>
+                <div style="height:1px;background:rgba(0,0,0,0.08);margin:8px 0;"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span id="cu-result-label" style="font-size:11px;font-weight:900;text-transform:uppercase;"></span>
+                    <span id="cu-result-diff" style="font-size:1.4rem;font-weight:900;"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="background:white;border-top:1px solid #f0ece0;padding:1rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;flex-shrink:0;">
+            <button onclick="closeCashUpModal()" style="padding:12px;border-radius:14px;font-weight:900;font-size:10px;text-transform:uppercase;border:1px solid #f0ece0;background:#f7f3e9;color:rgba(74,68,58,0.6);cursor:pointer;">Close</button>
+            <button onclick="calculateReconciliation()" style="padding:12px;border-radius:14px;font-weight:900;font-size:10px;text-transform:uppercase;border:none;background:#f59e0b;color:white;cursor:pointer;">Check</button>
+            <button onclick="shareCashUpWhatsApp()" style="padding:12px;border-radius:14px;font-weight:900;font-size:10px;text-transform:uppercase;border:none;background:#059669;color:white;cursor:pointer;">Share</button>
         </div>
     </div>
+</div>
 <!-- STOCK UPDATE MODAL - OPTIMIZED FOR MOBILE & DESKTOP -->
-<div id="stock-update-modal" class="fixed inset-0 bg-earth-900/90 backdrop-blur-2xl hidden flex items-center justify-center p-3 sm:p-6 text-center" style="z-index: 2500; display: none;">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl sm:rounded-[3rem] overflow-hidden flex flex-col" style="max-height: 95vh; max-height: 95dvh;">
-<div style="overflow-y: auto; height: 100vh; display: flex; flex-direction: column; background-color: #ffffff; font-family: sans-serif;">
-    
-    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; width: 100%; box-sizing: border-box;">
-        
-        <header>
-            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); letter-spacing: 0.1em; margin: 0;">Update Stock — New Delivery</p>
-            <h1 id="stock-item-name" style="font-weight: 900; font-size: 1.25rem; color: #059669; margin: 0.5rem 0 0; line-height: 1.2; word-break: break-word;">
-                Select an Item...
-            </h1>
-        </header>
-        
-        <section style="background: #ecfdf5; border-radius: 1.5rem; padding: 1.25rem; border: 1px solid #d1fae5;">
-            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: #059669; opacity: 0.7; letter-spacing: 0.1em; margin: 0 0 0.5rem;">Current Stock Available</p>
-            <p id="stock-current-display" style="font-weight: 900; font-size: 2.25rem; color: #059669; margin: 0;">0 units</p>
-            <p id="stock-current-cases" style="font-size: 11px; color: #059669; opacity: 0.8; margin: 0.25rem 0 0; font-weight: 600;">Equals: 0 cases + 0 extras</p>
-        </section>
-        
-        <nav>
-            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); letter-spacing: 0.1em; margin: 0 0 0.75rem;">How to Enter Stock</p>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-                <button id="stock-mode-units" onclick="setStockMode('units')" style="padding: 12px 4px; border-radius: 12px; border: none; background: #059669; color: white; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Units</button>
-                <button id="stock-mode-cases" onclick="setStockMode('cases')" style="padding: 12px 4px; border-radius: 12px; border: 1px solid #f0ece0; background: #f7f3e9; color: rgba(74, 68, 58, 0.6); font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Cases</button>
-                <button id="stock-mode-mixed" onclick="setStockMode('mixed')" style="padding: 12px 4px; border-radius: 12px; border: 1px solid #f0ece0; background: #f7f3e9; color: rgba(74, 68, 58, 0.6); font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Mixed</button>
-            </div>
-        </nav>
+<<div id="stock-update-modal" class="fixed inset-0 bg-earth-900/90 backdrop-blur-2xl hidden flex items-center justify-center p-4" style="z-index: 2500; display: none;">
+    <div style="background:white; border-radius:2rem; width:100%; max-width:420px; max-height:92vh; max-height:92dvh; display:flex; flex-direction:column; overflow:hidden;">
 
-        <div style="background: #f7f3e9; border-radius: 1.5rem; padding: 1.25rem;">
-            
-            <!-- UNITS INPUT -->
-            <div id="stock-mode-units-input">
-                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.75rem;">Enter Total Units to Add</p>
-                <input type="number" id="stock-units-input" placeholder="0" oninput="updateStockPreview()" 
-                    style="width: 100%; padding: 1rem; border-radius: 1rem; border: 1px solid #e5e7eb; font-size: 1.75rem; font-weight: 900; text-align: center; color: #2d2923; box-sizing: border-box; outline-color: #059669;">
+        <div style="overflow-y:auto; flex:1; padding:1.25rem; display:flex; flex-direction:column; gap:1.25rem;">
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:rgba(74,68,58,0.5); letter-spacing:0.1em; margin:0;">Update Stock — New Delivery</p>
+                <h2 id="stock-item-name" style="font-weight:900; font-size:1.2rem; color:#059669; margin:6px 0 0; line-height:1.2; word-break:break-word;">Select an Item...</h2>
             </div>
 
-            <!-- CASES INPUT -->
-            <div id="stock-mode-cases-input" style="display: none;">
-                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.5rem;">Units Per Case</p>
-                <div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <button id="stock-case-6" onclick="setStockCaseSize(6)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">6</button>
-                    <button id="stock-case-12" onclick="setStockCaseSize(12)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: none; background: #059669; color: white; font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">12</button>
-                    <button id="stock-case-24" onclick="setStockCaseSize(24)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">24</button>
-                    <button id="stock-case-48" onclick="setStockCaseSize(48)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">48</button>
+            <div style="background:#ecfdf5; border-radius:1.25rem; padding:1rem; border:1px solid #d1fae5;">
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:#059669; opacity:0.7; letter-spacing:0.1em; margin:0 0 4px;">Current Stock Available</p>
+                <p id="stock-current-display" style="font-weight:900; font-size:2rem; color:#059669; margin:0;">0 units</p>
+                <p id="stock-current-cases" style="font-size:11px; color:#059669; opacity:0.8; margin:4px 0 0; font-weight:600;">Equals: 0 cases + 0 extras</p>
+            </div>
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:rgba(74,68,58,0.5); letter-spacing:0.1em; margin:0 0 8px;">How to Enter Stock</p>
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+                    <button id="stock-mode-units" onclick="setStockMode('units')" style="padding:11px 4px; border-radius:12px; border:none; background:#059669; color:white; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer;">Units</button>
+                    <button id="stock-mode-cases" onclick="setStockMode('cases')" style="padding:11px 4px; border-radius:12px; border:1px solid #f0ece0; background:#f7f3e9; color:rgba(74,68,58,0.6); font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer;">Cases</button>
+                    <button id="stock-mode-mixed" onclick="setStockMode('mixed')" style="padding:11px 4px; border-radius:12px; border:1px solid #f0ece0; background:#f7f3e9; color:rgba(74,68,58,0.6); font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer;">Mixed</button>
                 </div>
-                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.5rem;">Number of Cases</p>
-                <input type="number" id="stock-cases-input" placeholder="0" oninput="updateStockPreview()" 
-                    style="width: 100%; padding: 1rem; border-radius: 1rem; border: 1px solid #e5e7eb; font-size: 1.75rem; font-weight: 900; text-align: center; box-sizing: border-box; outline-color: #059669;">
             </div>
 
-            <!-- MIXED INPUT -->
-            <div id="stock-mode-mixed-input" style="display: none;">
-                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.5rem;">Units Per Case</p>
-                <div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <button id="stock-mixed-case-6" onclick="setStockMixedCaseSize(6)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">6</button>
-                    <button id="stock-mixed-case-12" onclick="setStockMixedCaseSize(12)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: none; background: #059669; color: white; font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">12</button>
-                    <button id="stock-mixed-case-24" onclick="setStockMixedCaseSize(24)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">24</button>
-                    <button id="stock-mixed-case-48" onclick="setStockMixedCaseSize(48)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">48</button>
+            <div style="background:#f7f3e9; border-radius:1.25rem; padding:1rem;">
+
+                <div id="stock-mode-units-input">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:rgba(74,68,58,0.5); margin-bottom:8px;">Units to Add</p>
+                    <input type="number" id="stock-units-input" placeholder="0" oninput="updateStockPreview()" style="width:100%; box-sizing:border-box; padding:1rem; border-radius:1rem; border:1px solid #e5e7eb; font-size:1.75rem; font-weight:900; text-align:center; color:#2d2923; outline-color:#059669;">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
-                    <div>
-                        <p style="font-size: 9px; font-weight: 900; color: #059669; margin: 0 0 0.5rem; text-transform: uppercase;">Full Cases</p>
-                        <input type="number" id="stock-mixed-cases" placeholder="0" oninput="updateStockPreview()" 
-                            style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; font-size: 1.25rem; font-weight: 900; text-align: center; box-sizing: border-box; outline-color: #059669;">
+
+                <div id="stock-mode-cases-input" style="display:none;">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:rgba(74,68,58,0.5); margin-bottom:8px;">Units Per Case</p>
+                    <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;">
+                        <button id="stock-case-6" onclick="setStockCaseSize(6)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:1px solid #f0ece0; background:white; color:rgba(74,68,58,0.6); font-weight:900; font-size:11px; cursor:pointer;">6</button>
+                        <button id="stock-case-12" onclick="setStockCaseSize(12)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:none; background:#059669; color:white; font-weight:900; font-size:11px; cursor:pointer;">12</button>
+                        <button id="stock-case-24" onclick="setStockCaseSize(24)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:1px solid #f0ece0; background:white; color:rgba(74,68,58,0.6); font-weight:900; font-size:11px; cursor:pointer;">24</button>
+                        <button id="stock-case-48" onclick="setStockCaseSize(48)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:1px solid #f0ece0; background:white; color:rgba(74,68,58,0.6); font-weight:900; font-size:11px; cursor:pointer;">48</button>
                     </div>
-                    <div>
-                        <p style="font-size: 9px; font-weight: 900; color: #059669; margin: 0 0 0.5rem; text-transform: uppercase;">Loose Extras</p>
-                        <input type="number" id="stock-mixed-units" placeholder="0" oninput="updateStockPreview()" 
-                            style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; font-size: 1.25rem; font-weight: 900; text-align: center; box-sizing: border-box; outline-color: #059669;">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:rgba(74,68,58,0.5); margin-bottom:8px;">Number of Cases</p>
+                    <input type="number" id="stock-cases-input" placeholder="0" oninput="updateStockPreview()" style="width:100%; box-sizing:border-box; padding:1rem; border-radius:1rem; border:1px solid #e5e7eb; font-size:1.75rem; font-weight:900; text-align:center; outline-color:#059669;">
+                </div>
+
+                <div id="stock-mode-mixed-input" style="display:none;">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:rgba(74,68,58,0.5); margin-bottom:8px;">Units Per Case</p>
+                    <div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;">
+                        <button id="stock-mixed-case-6" onclick="setStockMixedCaseSize(6)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:1px solid #f0ece0; background:white; color:rgba(74,68,58,0.6); font-weight:900; font-size:11px; cursor:pointer;">6</button>
+                        <button id="stock-mixed-case-12" onclick="setStockMixedCaseSize(12)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:none; background:#059669; color:white; font-weight:900; font-size:11px; cursor:pointer;">12</button>
+                        <button id="stock-mixed-case-24" onclick="setStockMixedCaseSize(24)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:1px solid #f0ece0; background:white; color:rgba(74,68,58,0.6); font-weight:900; font-size:11px; cursor:pointer;">24</button>
+                        <button id="stock-mixed-case-48" onclick="setStockMixedCaseSize(48)" style="flex:1; min-width:48px; padding:9px 4px; border-radius:10px; border:1px solid #f0ece0; background:white; color:rgba(74,68,58,0.6); font-weight:900; font-size:11px; cursor:pointer;">48</button>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <p style="font-size:9px; font-weight:900; color:#059669; margin:0 0 6px; text-transform:uppercase;">Full Cases</p>
+                            <input type="number" id="stock-mixed-cases" placeholder="0" oninput="updateStockPreview()" style="width:100%; box-sizing:border-box; padding:12px; border-radius:10px; border:1px solid #e5e7eb; font-size:1.25rem; font-weight:900; text-align:center; outline-color:#059669;">
+                        </div>
+                        <div>
+                            <p style="font-size:9px; font-weight:900; color:#059669; margin:0 0 6px; text-transform:uppercase;">Loose Extras</p>
+                            <input type="number" id="stock-mixed-units" placeholder="0" oninput="updateStockPreview()" style="width:100%; box-sizing:border-box; padding:12px; border-radius:10px; border:1px solid #e5e7eb; font-size:1.25rem; font-weight:900; text-align:center; outline-color:#059669;">
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div style="background:#eff6ff; border-radius:1.25rem; padding:1rem; border:2px solid #0284c7;">
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:#0284c7; margin:0 0 4px; letter-spacing:0.1em;">Total Stock After Update</p>
+                <p id="stock-preview-total" style="font-size:2rem; font-weight:900; color:#0284c7; margin:0;">0 units</p>
+                <p id="stock-preview-breakdown" style="font-size:11px; color:#0284c7; margin:4px 0 0; font-weight:700; opacity:0.8;">(0 cases + 0 extras)</p>
+            </div>
+
         </div>
 
-        <section style="background: #eff6ff; border-radius: 1.5rem; padding: 1rem; border: 2px solid #0284c7;">
-            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: #0284c7; margin: 0 0 0.5rem; letter-spacing: 0.1em;">Total Stock After Update</p>
-            <p id="stock-preview-total" style="font-size: 2rem; font-weight: 900; color: #0284c7; margin: 0;">0 units</p>
-            <p id="stock-preview-breakdown" style="font-size: 11px; color: #0284c7; margin: 4px 0 0; font-weight: 700; opacity: 0.8;">(0 cases + 0 extras)</p>
-        </section>
-
-        <footer style="background: #fffbeb; border-radius: 1rem; padding: 1rem; border-left: 4px solid #f59e0b;">
-            <p style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #d97706; margin: 0 0 0.25rem;">⚠️ Double Check</p>
-            <p style="font-size: 13px; color: #b45309; margin: 0; line-height: 1.4;">Does the "Total Stock After Update" match the physical count on your delivery sheet?</p>
-        </footer>
-    </div>
-</div>
-</div>
-        
-        <!-- FIXED BUTTONS AT BOTTOM -->
-        <div style="background: white; border-top: 1px solid #f0ece0; padding: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0;">
-            <button id="stock-cancel-btn" class="py-4 sm:py-5 rounded-2xl font-black uppercase bg-earth-100 dark:bg-slate-800 transition-all active:scale-95" style="font-size:11px;color:#2d2923;cursor:pointer;border:none;">Cancel</button>
-            <button id="stock-confirm-btn" class="py-4 sm:py-5 rounded-2xl font-black uppercase text-white transition-all active:scale-95 shadow-lg" style="font-size:11px;background:#059669;cursor:pointer;border:none;">✓ Confirm</button>
+        <div style="background:white; border-top:1px solid #f0ece0; padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:10px; flex-shrink:0;">
+            <button id="stock-cancel-btn" style="padding:14px; border-radius:16px; font-weight:900; font-size:11px; text-transform:uppercase; border:1px solid #f0ece0; background:#f7f3e9; color:#2d2923; cursor:pointer;">Cancel</button>
+            <button id="stock-confirm-btn" style="padding:14px; border-radius:16px; font-weight:900; font-size:11px; text-transform:uppercase; border:none; background:#059669; color:white; cursor:pointer;">✓ Confirm</button>
         </div>
+
     </div>
 </div>
 
-    <div id="toast" class="fixed bg-earth-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-full shadow-2xl flex items-center gap-3 text-center pointer-events-none" style="top: 7rem; left: 50%; transform: translate(-50%, 20px); opacity: 0; transition: 0.3s; z-index: 10003;">
+  <div id="qty-popup-modal" class="fixed inset-0 flex items-center justify-center p-4" style="background:rgba(45,41,35,0.7);backdrop-filter:blur(8px);z-index:9000;display:none;">
+    <div style="background:white;border-radius:1.5rem;width:100%;max-width:280px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+        <div style="background:#059669;padding:1rem 1.25rem;">
+            <p id="qty-popup-title" style="font-weight:900;font-size:1rem;color:white;margin:0;line-height:1.2;"></p>
+            <p id="qty-popup-price" style="font-size:11px;color:rgba(255,255,255,0.7);margin:4px 0 0;font-weight:700;"></p>
+        </div>
+        <div style="padding:1.25rem;text-align:center;">
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.5);letter-spacing:0.1em;margin-bottom:8px;">Enter Quantity</p>
+            <input type="number" id="qty-popup-input" min="0"
+                style="width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:2px solid #a7f3d0;background:#f0fdf8;font-size:2rem;font-weight:900;text-align:center;color:#059669;outline:none;margin-bottom:6px;">
+            <p id="qty-popup-max" style="font-size:9px;font-weight:900;color:rgba(74,68,58,0.3);text-transform:uppercase;margin-bottom:12px;"></p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button id="qty-popup-cancel" style="padding:12px;border-radius:12px;border:1px solid #f0ece0;background:#f7f3e9;font-weight:900;font-size:11px;text-transform:uppercase;color:rgba(74,68,58,0.6);cursor:pointer;">Cancel</button>
+                <button id="qty-popup-confirm" style="padding:12px;border-radius:12px;border:none;background:#059669;color:white;font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">Set Qty</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bg-earth-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-full shadow-2xl flex items-center gap-3 text-center pointer-events-none" style="top: 7rem; left: 50%; transform: translate(-50%, 20px); opacity: 0; transition: 0.3s; z-index: 10003;">
         <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400 w-6 h-6"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
         <span id="toast-msg" class="font-black text-lg tracking-tight leading-none">PIN Saved</span>
     </div>
@@ -1837,7 +1953,7 @@
             renderGrid();
         }
 
-        function renderGrid() {
+ function renderGrid() {
             const grid = document.getElementById('grid');
             const filtered = items.filter(i => {
                 const matchesSearch = i.name.toLowerCase().includes(searchTerm);
@@ -1849,23 +1965,43 @@
                 const inCart = cart[i.id] || 0;
                 const isLow = i.stock > 0 && i.stock <= 5;
                 const isOut = i.stock === 0;
-                const borderStyle = isOut ? 'border:1px solid #fecdd3;opacity:0.6;' : isLow ? 'border:1px solid #fcd34d;' : 'border:1px solid #f7f3e9;';
+                const borderStyle = isOut ? 'border:1.5px solid #fecdd3;opacity:0.6;' : isLow ? 'border:1.5px solid #fcd34d;' : 'border:1.5px solid #f0ece0;';
+                const cartBg = inCart > 0 ? 'background:linear-gradient(145deg,#f0fdf8,#fff);border-color:#a7f3d0;' : '';
                 return `
-                    <div style="background:white;padding:1.25rem;border-radius:2rem;${borderStyle}position:relative;box-shadow:0 1px 2px rgba(0,0,0,0.05);text-align:center;" class="dark-card hover:shadow-md transition-all">
-                        <p style="font-size:8px;font-weight:900;color:rgba(5,150,105,0.5);text-transform:uppercase;margin-bottom:0.25rem;">${i.cat}</p>
-                        <p class="font-black text-sm mb-1" style="overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;">${i.name}</p>
-                        <p class="text-xl font-black text-emerald-600">K${i.price}</p>
-                        <p style="font-size:9px;font-weight:900;color:rgba(74,68,58,0.3);text-transform:uppercase;margin-top:0.25rem;">Stock: ${i.stock}</p>
-                        ${isLow ? `<p style="font-size:8px;font-weight:900;color:#f59e0b;text-transform:uppercase;margin-top:0.25rem;">⚠ Low Stock</p>` : ''}
-                        ${isOut ? `<p style="font-size:8px;font-weight:900;color:#f43f5e;text-transform:uppercase;margin-top:0.25rem;">✕ Out of Stock</p>` : ''}
-                        <div onclick="addToCart(${i.id})" style="position:absolute;inset:0;z-index:10;cursor:pointer;border-radius:2rem;"></div>
+                    <div style="background:white;${cartBg}padding:0.6rem 0.5rem 0.5rem;border-radius:1rem;${borderStyle}position:relative;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center;transition:all 0.15s;" class="dark-card">
+                        <p style="font-size:7px;font-weight:900;color:rgba(5,150,105,0.5);text-transform:uppercase;margin-bottom:2px;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.cat}</p>
+                        <p style="font-weight:900;font-size:0.75rem;line-height:1.2;margin-bottom:4px;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;color:#2d2923;">${i.name}</p>
+                        <p style="font-size:1rem;font-weight:900;color:#059669;line-height:1;">K${i.price}</p>
+                        <p style="font-size:7px;font-weight:900;color:rgba(74,68,58,0.3);text-transform:uppercase;margin-top:3px;">${isOut ? '✕ Out' : isLow ? '⚠ Low' : 'Stk: '+i.stock}</p>
+                        <div onclick="addToCart(${i.id})" style="position:absolute;inset:0;z-index:10;cursor:pointer;border-radius:1rem;"></div>
                         ${inCart > 0 ? `
-                            <button onclick="event.stopPropagation(); minusFromCart(${i.id})" style="position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);width:2rem;height:2rem;background:#f43f5e;color:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.125rem;box-shadow:0 4px 8px rgba(244,63,94,0.3);z-index:20;">-</button>
-                            <div onclick="event.stopPropagation(); openQtyInput(${i.id}, ${inCart}, ${i.stock})" style="position:absolute;top:-0.5rem;right:-0.5rem;width:2rem;height:2rem;background:#059669;color:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;box-shadow:0 4px 8px rgba(5,150,105,0.3);z-index:20;cursor:pointer;">${inCart}</div>
+                            <button onclick="event.stopPropagation(); minusFromCart(${i.id})" style="position:absolute;left:-6px;top:50%;transform:translateY(-50%);width:22px;height:22px;background:#f43f5e;color:white;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;box-shadow:0 2px 6px rgba(244,63,94,0.35);z-index:20;border:none;cursor:pointer;">−</button>
+                            <div onclick="event.stopPropagation(); openQtyPopup(${i.id}, ${inCart}, ${i.stock})" style="position:absolute;top:-8px;right:-6px;min-width:22px;height:22px;padding:0 5px;background:#059669;color:white;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;box-shadow:0 2px 6px rgba(5,150,105,0.35);z-index:20;cursor:pointer;">${inCart}</div>
                         ` : ''}
                     </div>
                 `;
             }).join('');
+        }
+
+        function openQtyPopup(id, current, maxStock) {
+            const item = items.find(i => i.id === id);
+            const modal = document.getElementById('qty-popup-modal');
+            document.getElementById('qty-popup-title').innerText = item.name;
+            document.getElementById('qty-popup-price').innerText = `K${item.price} each`;
+            document.getElementById('qty-popup-input').value = current;
+            document.getElementById('qty-popup-max').innerText = `Max: ${maxStock}`;
+            document.getElementById('qty-popup-modal').style.display = 'flex';
+            document.getElementById('qty-popup-input').focus();
+            document.getElementById('qty-popup-input').select();
+            document.getElementById('qty-popup-confirm').onclick = () => {
+                const val = parseInt(document.getElementById('qty-popup-input').value) || 0;
+                if (val <= 0) delete cart[id];
+                else cart[id] = Math.min(val, maxStock);
+                modal.style.display = 'none';
+                updateTotals();
+                renderGrid();
+            };
+            document.getElementById('qty-popup-cancel').onclick = () => { modal.style.display = 'none'; };
         }
 
         function openQtyInput(id, current, maxStock) {
@@ -1986,23 +2122,32 @@
             }
         }
 
-     function askToClearCart() {
-    document.getElementById('confirm-modal').style.display = 'flex';
-    document.getElementById('confirm-msg').innerText = "Clear entire basket?";
-    
-    // Setup No button
-    const noBtn = document.querySelector('#confirm-modal .flex button:first-child');
-    noBtn.onclick = () => {
-        document.getElementById('confirm-modal').style.display = 'none';
+function askToClearCart() {
+    const modal = document.getElementById('qty-popup-modal');
+    document.getElementById('qty-popup-title').innerText = 'Clear Basket?';
+    document.getElementById('qty-popup-price').innerText = 'All items will be removed';
+    document.getElementById('qty-popup-input').style.display = 'none';
+    document.getElementById('qty-popup-max').innerText = '';
+    modal.style.display = 'flex';
+    document.getElementById('qty-popup-cancel').innerText = 'No';
+    document.getElementById('qty-popup-confirm').innerText = 'Yes, Clear';
+    document.getElementById('qty-popup-confirm').style.background = '#f43f5e';
+    document.getElementById('qty-popup-cancel').onclick = () => {
+        modal.style.display = 'none';
+        document.getElementById('qty-popup-input').style.display = '';
+        document.getElementById('qty-popup-confirm').style.background = '#059669';
+        document.getElementById('qty-popup-cancel').innerText = 'Cancel';
+        document.getElementById('qty-popup-confirm').innerText = 'Set Qty';
     };
-    
-    // Setup Yes button
-    const yesBtn = document.querySelector('#confirm-modal .flex button:last-child');
-    yesBtn.onclick = () => {
+    document.getElementById('qty-popup-confirm').onclick = () => {
         cart = {};
         updateTotals();
         renderGrid();
-        document.getElementById('confirm-modal').style.display = 'none';
+        modal.style.display = 'none';
+        document.getElementById('qty-popup-input').style.display = '';
+        document.getElementById('qty-popup-confirm').style.background = '#059669';
+        document.getElementById('qty-popup-cancel').innerText = 'Cancel';
+        document.getElementById('qty-popup-confirm').innerText = 'Set Qty';
     };
 }
 
@@ -2174,7 +2319,7 @@
 
             let stockCost = 0;
             filteredSales.forEach(s => s.items.forEach(i => stockCost += i.cost * i.qty));
-            const profit = (revenue - stockCost) - totalExp;
+            const profit = parseFloat(((revenue - stockCost) - totalExp).toFixed(2));
 
             return { revenue, expenses: totalExp, drawer: cashIn - totalExp, profit };
         }
@@ -2247,6 +2392,15 @@
         }
 
         // --- INVENTORY & STOCK ADJUSTMENTS ---
+function toggleInvCat(catId) {
+            const el = document.getElementById(catId);
+            const arrow = document.getElementById(catId + '-arrow');
+            if (!el) return;
+            const isOpen = el.style.maxHeight && el.style.maxHeight !== '0px';
+            el.style.maxHeight = isOpen ? '0px' : el.scrollHeight + 'px';
+            arrow.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
+        }
+
         function renderInventory() {
             const list = document.getElementById('inventory-list');
             const grouped = {};
@@ -2255,68 +2409,146 @@
                 grouped[i.cat].push(i);
             });
 
-            list.innerHTML = Object.entries(grouped).map(([cat, catItems]) => {
-                const cards = catItems.map(i => {
-                    const isOut = i.stock === 0;
-                    const isLow = i.stock > 0 && i.stock <= 5;
-                    const healthColor = isOut ? '#ef4444' : isLow ? '#fbbf24' : '#10b981';
-                    const healthLabel = isOut ? 'Out of Stock' : isLow ? 'Low Stock' : 'In Stock';
-                    const healthBadgeBg = isOut ? '#fef2f2' : isLow ? '#fef9c3' : '#ecfdf5';
-                    const healthBadgeColor = isOut ? '#ef4444' : isLow ? '#ca8a04' : '#059669';
-                    const stockNumColor = isOut ? '#f43f5e' : isLow ? '#f59e0b' : '#059669';
-                    const borderStyle = isOut ? 'border:1px solid #fecdd3;' : isLow ? 'border:1px solid #fcd34d;' : 'border:1px solid #f7f3e9;';
-                    const barPct = Math.min(100, Math.round((i.stock / 50) * 100));
-                    const margin = i.cost > 0 ? Math.round(((i.price - i.cost) / i.price) * 100) : 0;
+            const isMobile = window.innerWidth < 768;
 
-                    return `
-                        <div style="background:white;border-radius:2rem;${borderStyle}overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.05);" class="col-span-1">
-                            <div style="padding:1.25rem;">
-                                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
-                                    <span style="font-size:8px;font-weight:900;text-transform:uppercase;padding:0.375rem 0.75rem;border-radius:9999px;background:${healthBadgeBg};color:${healthBadgeColor};">${healthLabel}</span>
-                                    <button onclick="askToDeleteStock(${i.id})" style="width:2.25rem;height:2.25rem;display:flex;align-items:center;justify-content:center;background:#fff1f2;color:#f43f5e;border-radius:0.75rem;cursor:pointer;border:none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            if (isMobile) {
+                // OPTION A — compact list rows with collapsible categories
+                list.innerHTML = Object.entries(grouped).map(([cat, catItems]) => {
+                    const catId = 'cat-' + cat.replace(/\s+/g,'_');
+                    const rows = catItems.map(i => {
+                        const isOut = i.stock === 0;
+                        const isLow = i.stock > 0 && i.stock <= 5;
+                        const dotColor = isOut ? '#ef4444' : isLow ? '#f59e0b' : '#10b981';
+                        const stockColor = isOut ? '#ef4444' : isLow ? '#f59e0b' : '#059669';
+                        const barPct = Math.min(100, Math.round((i.stock / 50) * 100));
+                        const borderColor = isOut ? '#fecdd3' : isLow ? '#fcd34d' : '#f0ece0';
+                        return `
+                            <div style="background:white;border:1px solid ${borderColor};border-radius:14px;padding:10px 12px;margin-bottom:6px;${isOut?'opacity:0.65;':''}">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                                    <div style="width:9px;height:9px;border-radius:3px;background:${dotColor};flex-shrink:0;"></div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-weight:900;font-size:13px;color:#2d2923;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${i.name}</div>
+                                        <div style="font-size:9px;font-weight:900;color:rgba(74,68,58,0.4);text-transform:uppercase;">K${i.cost} cost · ${i.cost>0?Math.round(((i.price-i.cost)/i.price)*100)+'% margin':'—'}</div>
+                                    </div>
+                                    <div style="font-size:13px;font-weight:900;color:#059669;flex-shrink:0;">K${i.price}</div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <div style="flex:1;height:5px;background:#f0ece0;border-radius:3px;overflow:hidden;">
+                                        <div style="height:5px;background:${dotColor};width:${barPct}%;border-radius:3px;"></div>
+                                    </div>
+                                    <div style="font-size:12px;font-weight:900;color:${stockColor};flex-shrink:0;min-width:28px;text-align:right;">${i.stock} units</div>
+                                    <button onclick="adjustStockLevel(${i.id}, -1)" style="width:34px;height:34px;border-radius:9px;background:#fef2f2;color:#f43f5e;border:none;font-weight:900;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">−</button>
+                                    <button onclick="adjustStockLevel(${i.id}, 1)" style="width:34px;height:34px;border-radius:9px;background:#ecfdf5;color:#059669;border:none;font-weight:900;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">+</button>
+                                    <button onclick="askToDeleteStock(${i.id})" style="width:34px;height:34px;border-radius:9px;background:#fff1f2;color:#f43f5e;border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                     </button>
                                 </div>
-                                <h4 style="font-weight:900;font-size:1rem;margin-bottom:0.75rem;text-align:left;line-height:1.25;">${i.name}</h4>
-                                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:0.75rem;">
-                                    <div style="display:flex;flex-direction:column;align-items:center;background:#fdfcf7;border-radius:1rem;padding:0.5rem 0.25rem;">
-                                        <span style="font-size:7px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.1em;">Cost</span>
-                                        <span style="font-weight:900;font-size:0.875rem;">K${i.cost}</span>
-                                    </div>
-                                    <div style="display:flex;flex-direction:column;align-items:center;background:#ecfdf5;border-radius:1rem;padding:0.5rem 0.25rem;">
-                                        <span style="font-size:7px;font-weight:900;text-transform:uppercase;color:rgba(5,150,105,0.6);letter-spacing:0.1em;">Sell</span>
-                                        <span style="font-weight:900;font-size:0.875rem;color:#059669;">K${i.price}</span>
-                                    </div>
-                                    <div style="display:flex;flex-direction:column;align-items:center;background:#eff6ff;border-radius:1rem;padding:0.5rem 0.25rem;">
-                                        <span style="font-size:7px;font-weight:900;text-transform:uppercase;color:rgba(37,99,235,0.6);letter-spacing:0.1em;">Margin</span>
-                                        <span style="font-weight:900;font-size:0.875rem;color:#3b82f6;">${margin}%</span>
-                                    </div>
-                                </div>
-                                <div style="display:flex;align-items:center;justify-content:space-between;background:#fdfcf7;border-radius:1rem;padding:0.5rem;">
-                                    <span style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.1em;padding-left:0.25rem;">Stock</span>
-                                    <div style="display:flex;align-items:center;gap:0.75rem;">
-                                        <button onclick="adjustStockLevel(${i.id}, -1)" style="width:2.25rem;height:2.25rem;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#f43f5e;border-radius:0.75rem;font-weight:900;font-size:1.125rem;cursor:pointer;border:none;">−</button>
-                                        <span style="font-weight:900;font-size:1.125rem;width:2rem;text-align:center;color:${stockNumColor};">${i.stock}</span>
-                                        <button onclick="adjustStockLevel(${i.id}, 1)" style="width:2.25rem;height:2.25rem;display:flex;align-items:center;justify-content:center;background:#ecfdf5;color:#10b981;border-radius:0.75rem;font-weight:900;font-size:1.125rem;cursor:pointer;border:none;">+</button>
-                                    </div>
-                                </div>
                             </div>
-                            <div style="width:100%;height:6px;background:#f7f3e9;">
-                                <div style="height:6px;background:${healthColor};width:${barPct}%;transition:width 0.5s;"></div>
+                        `;
+                    }).join('');
+                  return `
+                        <div style="margin-bottom:12px;">
+                            <button onclick="toggleInvCat('${catId}')" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:white;border:1px solid #f0ece0;border-radius:12px;padding:10px 14px;cursor:pointer;margin-bottom:6px;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:#2d2923;letter-spacing:0.08em;">${cat}</span>
+                                    <span style="font-size:9px;font-weight:900;background:#ecfdf5;color:#059669;padding:2px 8px;border-radius:999px;">${catItems.length}</span>
+                                </div>
+                                <span id="${catId}-arrow" style="font-size:12px;color:rgba(74,68,58,0.4);transition:transform 0.2s;">▼</span>
+                            </button>
+                            <div id="${catId}" style="overflow:hidden;transition:max-height 0.3s ease;">
+                                ${rows}
+                            </div>
+                        </div>
+                    `;
+           }).join('');
+
+                // expand all cats by default
+                Object.keys(grouped).forEach(cat => {
+                    const catId = 'cat-' + cat.replace(/\s+/g,'_');
+                    const el = document.getElementById(catId);
+                    if (el) el.style.maxHeight = el.scrollHeight + 'px';
+                });
+
+            } else {
+                // OPTION C — table view for desktop
+                list.innerHTML = Object.entries(grouped).map(([cat, catItems]) => {
+                    const rows = catItems.map(i => {
+                        const isOut = i.stock === 0;
+                        const isLow = i.stock > 0 && i.stock <= 5;
+                        const barColor = isOut ? '#ef4444' : isLow ? '#f59e0b' : '#10b981';
+                        const stockColor = isOut ? '#ef4444' : isLow ? '#f59e0b' : '#059669';
+                        const barPct = Math.min(100, Math.round((i.stock / 50) * 100));
+                        const margin = i.cost > 0 ? Math.round(((i.price - i.cost) / i.price) * 100) : 0;
+                        const statusBg = isOut ? '#fef2f2' : isLow ? '#fef9c3' : '#ecfdf5';
+                        const statusColor = isOut ? '#ef4444' : isLow ? '#ca8a04' : '#059669';
+                        const statusLabel = isOut ? 'Out' : isLow ? 'Low' : 'OK';
+                        return `
+                            <tr style="${isOut?'opacity:0.65;':''}">
+                                <td style="padding:10px 14px;border-bottom:1px solid #fdfcf7;">
+                                    <div style="font-weight:900;font-size:13px;color:#2d2923;">${i.name}</div>
+                                </td>
+                                <td style="padding:10px 14px;border-bottom:1px solid #fdfcf7;font-weight:900;font-size:13px;color:#059669;">K${i.price}</td>
+                                <td style="padding:10px 14px;border-bottom:1px solid #fdfcf7;font-weight:900;font-size:12px;color:rgba(74,68,58,0.5);">K${i.cost}</td>
+                                <td style="padding:10px 14px;border-bottom:1px solid #fdfcf7;font-weight:900;font-size:12px;color:#3b82f6;">${margin}%</td>
+                                <td style="padding:10px 14px;border-bottom:1px solid #fdfcf7;">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <div style="width:60px;height:5px;background:#f0ece0;border-radius:3px;overflow:hidden;">
+                                            <div style="height:5px;background:${barColor};width:${barPct}%;border-radius:3px;"></div>
+                                        </div>
+                                        <span style="font-weight:900;font-size:13px;color:${stockColor};min-width:24px;">${i.stock}</span>
+                                        <span style="font-size:8px;font-weight:900;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:${statusBg};color:${statusColor};">${statusLabel}</span>
+                                    </div>
+                                </td>
+                                <td style="padding:10px 14px;border-bottom:1px solid #fdfcf7;">
+                                    <div style="display:flex;gap:5px;align-items:center;">
+                                        <button onclick="adjustStockLevel(${i.id}, -1)" style="width:28px;height:28px;border-radius:8px;background:#fef2f2;color:#f43f5e;border:none;font-weight:900;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>
+                                        <button onclick="adjustStockLevel(${i.id}, 1)" style="width:28px;height:28px;border-radius:8px;background:#ecfdf5;color:#059669;border:none;font-weight:900;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+                                        <button onclick="askToDeleteStock(${i.id})" style="width:28px;height:28px;border-radius:8px;background:#fff1f2;color:#f43f5e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+const catId = 'dcat-' + cat.replace(/\s+/g,'_');
+                    return `
+                        <div style="margin-bottom:14px;">
+                            <button onclick="toggleInvCat('${catId}')" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:white;border:1px solid #f0ece0;border-radius:12px;padding:10px 16px;cursor:pointer;margin-bottom:6px;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:#2d2923;letter-spacing:0.08em;">${cat}</span>
+                                    <span style="font-size:9px;font-weight:900;background:#ecfdf5;color:#059669;padding:2px 8px;border-radius:999px;">${catItems.length}</span>
+                                </div>
+                                <span id="${catId}-arrow" style="font-size:12px;color:rgba(74,68,58,0.4);">▼</span>
+                            </button>
+                            <div id="${catId}" style="overflow:hidden;transition:max-height 0.3s ease;">
+                                <div style="background:white;border-radius:16px;border:1px solid #f0ece0;overflow:hidden;">
+                                    <table style="width:100%;border-collapse:collapse;">
+                                        <thead>
+                                            <tr style="background:#fdfcf7;">
+                                                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.08em;border-bottom:1px solid #f0ece0;">Item</th>
+                                                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.08em;border-bottom:1px solid #f0ece0;">Sell</th>
+                                                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.08em;border-bottom:1px solid #f0ece0;">Cost</th>
+                                                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.08em;border-bottom:1px solid #f0ece0;">Margin</th>
+                                                <th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.08em;border-bottom:1px solid #f0ece0;">Stock</th>
+                                                <th style="padding:8px 14px;border-bottom:1px solid #f0ece0;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>${rows}</tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
 
-                return `
-                    <div class="col-span-full">
-                        <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);letter-spacing:0.1em;margin-bottom:0.75rem;padding-left:0.25rem;text-align:left;">${cat} <span style="color:#059669;">(${catItems.length})</span></p>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
-                            ${cards}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                // expand all cats by default
+                Object.keys(grouped).forEach(cat => {
+                    const catId = 'dcat-' + cat.replace(/\s+/g,'_');
+                    const el = document.getElementById(catId);
+                    if (el) el.style.maxHeight = el.scrollHeight + 'px';
+                });
+            }
         }
 
 let stockModalMode = 'units';
@@ -2932,19 +3164,148 @@ function selectAddCat(cat) {
         }
 
         // --- CASHUP RECONCILIATION ---
-        function openCashUpModal() { document.getElementById('cashup-modal').style.display = 'flex'; document.getElementById('recon-count').value = ""; document.getElementById('recon-results').classList.add('hidden'); }
+  const DENOMS = [500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5, ]; 
+
+        function openCashUpModal() {
+            const modal = document.getElementById('cashup-modal');
+            modal.style.display = 'flex';
+
+            const today = new Date().toLocaleDateString();
+            const todaySales = sales.filter(s => s.date === today);
+            const todayExp = expenses.filter(e => e.date === today);
+
+            const cashSales = todaySales.reduce((acc, s) => {
+                if (s.method === 'Cash') return acc + s.total;
+                if (s.method === 'Split') return acc + (s.cashPart || 0);
+                return acc;
+            }, 0);
+            const momoSales = todaySales.reduce((acc, s) => {
+                if (s.method === 'MoMo') return acc + s.total;
+                if (s.method === 'Split') return acc + (s.momoPart || 0);
+                return acc;
+            }, 0);
+            const totalExp = todayExp.reduce((acc, e) => acc + e.amount, 0);
+
+            document.getElementById('cu-cash-sales').innerText = `K${cashSales}`;
+            document.getElementById('cu-momo-sales').innerText = `K${momoSales}`;
+            document.getElementById('cu-expenses').innerText = `K${totalExp}`;
+            document.getElementById('cu-float').value = '';
+            document.getElementById('cu-manual-count').value = '';
+            document.getElementById('cu-result-box').style.display = 'none';
+
+            const floatVal = 0;
+            document.getElementById('cu-expected').innerText = `K${cashSales - totalExp + floatVal}`;
+
+            // build denom rows
+            const denomRows = document.getElementById('denom-rows');
+            denomRows.innerHTML = DENOMS.map(d => `
+                <div style="display:flex;align-items:center;gap:10px;background:#f7f3e9;border-radius:10px;padding:8px 12px;">
+                    <span style="font-size:12px;font-weight:900;color:#2d2923;width:44px;flex-shrink:0;">K${d}</span>
+                    <input type="number" min="0" placeholder="0" id="denom-${d}"
+                        oninput="updateDenomTotal()"
+                        style="flex:1;border:1px solid #f0ece0;border-radius:8px;padding:6px 10px;font-size:14px;font-weight:900;text-align:center;background:white;outline:none;">
+                    <span id="denom-sub-${d}" style="font-size:11px;font-weight:900;color:rgba(74,68,58,0.4);width:44px;text-align:right;flex-shrink:0;">K0</span>
+                </div>
+            `).join('');
+            updateDenomTotal();
+        }
+
+        function updateDenomTotal() {
+            let total = 0;
+            DENOMS.forEach(d => {
+                const qty = parseInt(document.getElementById(`denom-${d}`)?.value) || 0;
+                const sub = qty * d;
+                total += sub;
+                const subEl = document.getElementById(`denom-sub-${d}`);
+                if (subEl) subEl.innerText = sub > 0 ? `K${sub}` : 'K0';
+            });
+            document.getElementById('cu-denom-total').innerText = `K${total}`;
+            document.getElementById('cu-manual-count').value = total > 0 ? total : '';
+            document.getElementById('cu-result-box').style.display = 'none';
+        }
+
+        function syncManualCount() {
+            DENOMS.forEach(d => {
+                const el = document.getElementById(`denom-${d}`);
+                if (el) el.value = '';
+            });
+            document.getElementById('cu-denom-total').innerText = 'K0';
+            document.getElementById('cu-result-box').style.display = 'none';
+        }
+
+        function updateCashUpExpected() {
+            const today = new Date().toLocaleDateString();
+            const todaySales = sales.filter(s => s.date === today);
+            const todayExp = expenses.filter(e => e.date === today);
+            const cashSales = todaySales.reduce((acc, s) => {
+                if (s.method === 'Cash') return acc + s.total;
+                if (s.method === 'Split') return acc + (s.cashPart || 0);
+                return acc;
+            }, 0);
+            const totalExp = todayExp.reduce((acc, e) => acc + e.amount, 0);
+            const floatVal = parseFloat(document.getElementById('cu-float').value) || 0;
+            document.getElementById('cu-expected').innerText = `K${cashSales - totalExp + floatVal}`;
+        }
+
         function closeCashUpModal() { document.getElementById('cashup-modal').style.display = 'none'; }
+
         function calculateReconciliation() {
-            const counted = parseFloat(document.getElementById('recon-count').value) || 0;
-            const expected = getMetrics('daily').drawer;
-            const diff = counted - expected;
-            const status = document.getElementById('recon-status');
-            document.getElementById('recon-results').classList.remove('hidden');
-            if (diff === 0) { status.innerText = "DRAWER BALANCED! Perfect."; status.style.background = '#ecfdf5'; status.style.color = '#059669'; }
-            else if (diff > 0) { status.innerText = `SURPLUS: K${diff} extra.`; status.style.background = '#f0f9ff'; status.style.color = '#0284c7'; }
-            else { status.innerText = `SHORTAGE: K${Math.abs(diff)} missing.`; status.style.background = '#fef2f2'; status.style.color = '#f43f5e'; }
-            status.style.fontSize = '12px';
-            status.style.textTransform = 'uppercase';
+            const today = new Date().toLocaleDateString();
+            const todaySales = sales.filter(s => s.date === today);
+            const todayExp = expenses.filter(e => e.date === today);
+            const cashSales = todaySales.reduce((acc, s) => {
+                if (s.method === 'Cash') return acc + s.total;
+                if (s.method === 'Split') return acc + (s.cashPart || 0);
+                return acc;
+            }, 0);
+            const totalExp = todayExp.reduce((acc, e) => acc + e.amount, 0);
+            const floatVal = parseFloat(document.getElementById('cu-float').value) || 0;
+            const expected = cashSales - totalExp + floatVal;
+            const counted = parseFloat(document.getElementById('cu-manual-count').value) || 0;
+            const diff = parseFloat((counted - expected).toFixed(2));
+
+            const box = document.getElementById('cu-result-box');
+            box.style.display = 'block';
+            document.getElementById('cu-result-expected').innerText = `K${expected}`;
+            document.getElementById('cu-result-counted').innerText = `K${counted}`;
+
+            if (diff === 0) {
+                box.style.background = '#ecfdf5'; box.style.color = '#059669';
+                document.getElementById('cu-result-label').innerText = 'Balanced';
+                document.getElementById('cu-result-diff').innerText = '✓';
+            } else if (diff > 0) {
+                box.style.background = '#eff6ff'; box.style.color = '#2563eb';
+                document.getElementById('cu-result-label').innerText = 'Surplus';
+                document.getElementById('cu-result-diff').innerText = `+K${diff}`;
+            } else {
+                box.style.background = '#fef2f2'; box.style.color = '#f43f5e';
+                document.getElementById('cu-result-label').innerText = 'Shortage';
+                document.getElementById('cu-result-diff').innerText = `-K${Math.abs(diff)}`;
+            }
+
+            // save to history
+            const record = {
+                id: Date.now(),
+                date: today,
+                time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+                cashSales, momoSales: todaySales.reduce((acc,s)=> s.method==='MoMo'?acc+s.total:s.method==='Split'?acc+(s.momoPart||0):acc, 0),
+                expenses: totalExp, float: floatVal, expected, counted, diff
+            };
+            const history = JSON.parse(localStorage.getItem('cashup_history') || '[]');
+            history.unshift(record);
+            localStorage.setItem('cashup_history', JSON.stringify(history.slice(0, 30)));
+        }
+
+        function shareCashUpWhatsApp() {
+            const today = new Date().toLocaleDateString();
+            const expected = document.getElementById('cu-expected').innerText;
+            const counted = document.getElementById('cu-manual-count').value || '—';
+            const diff = document.getElementById('cu-result-diff')?.innerText || '—';
+            const cashSales = document.getElementById('cu-cash-sales').innerText;
+            const momoSales = document.getElementById('cu-momo-sales').innerText;
+            const expenses = document.getElementById('cu-expenses').innerText;
+            const msg = `*Cash Up Report — ${businessName}*\n${today}\n\nCash Sales: ${cashSales}\nMoMo Sales: ${momoSales}\nExpenses Out: ${expenses}\nExpected in Drawer: ${expected}\nActual Count: K${counted}\nVariance: ${diff}\n\nQuickTap Pro Zambia`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         // --- UI UTILS ---
@@ -2996,14 +3357,33 @@ function selectAddCat(cat) {
             }, 2500);
         }
 
-        function showConfirm(msg, action) {
-            document.getElementById('confirm-modal').style.display = 'flex';
-            document.getElementById('confirm-msg').innerText = msg;
-            confirmAction = action;
+      function showConfirm(msg, action) {
+            const modal = document.getElementById('qty-popup-modal');
+            document.getElementById('qty-popup-title').innerText = 'Confirm';
+            document.getElementById('qty-popup-price').innerText = msg;
+            document.getElementById('qty-popup-input').style.display = 'none';
+            document.getElementById('qty-popup-max').innerText = '';
+            document.getElementById('qty-popup-cancel').innerText = 'No';
+            document.getElementById('qty-popup-confirm').innerText = 'Yes';
+            document.getElementById('qty-popup-confirm').style.background = '#059669';
+            modal.style.display = 'flex';
+            const reset = () => {
+                modal.style.display = 'none';
+                document.getElementById('qty-popup-input').style.display = '';
+                document.getElementById('qty-popup-cancel').innerText = 'Cancel';
+                document.getElementById('qty-popup-confirm').innerText = 'Set Qty';
+                document.getElementById('qty-popup-confirm').style.background = '#059669';
+            };
+            document.getElementById('qty-popup-cancel').onclick = () => reset();
+            document.getElementById('qty-popup-confirm').onclick = () => { reset(); if (action) action(); };
         }
 
         function closeConfirmModal(confirmed) {
-            document.getElementById('confirm-modal').style.display = 'none';
+            document.getElementById('qty-popup-modal').style.display = 'none';
+            document.getElementById('qty-popup-input').style.display = '';
+            document.getElementById('qty-popup-cancel').innerText = 'Cancel';
+            document.getElementById('qty-popup-confirm').innerText = 'Set Qty';
+            document.getElementById('qty-popup-confirm').style.background = '#059669';
             if (confirmed && confirmAction) confirmAction();
             confirmAction = null;
         }
