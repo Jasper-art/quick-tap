@@ -952,7 +952,7 @@
         <div class="lic-logo">⚡</div>
         <div class="lic-title">QuickTap Pro</div>
         <div class="lic-sub">Zambia — Activate Your License</div>
-        <input type="text" id="license-input" class="lic-input" placeholder="Enter your license key e.g. QT-ZM-..." maxlength="30" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key===&#39;Enter&#39;)activateLicense()">
+        <input type="text" id="license-input" class="lic-input" placeholder="Enter your license key e.g. QT-ZM-..." maxlength="30" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')activateLicense()">
         <div class="lic-error" id="lic-error"></div>
         <button class="lic-btn" onclick="activateLicense()">Activate App</button>
         <div class="lic-hint">Your license key was sent to you via WhatsApp when you purchased QuickTap Pro. Contact your supplier if you need a key.</div>
@@ -977,7 +977,7 @@
         <span id="license-footer-text">Licensed to: PS • Trial • Expires: 17/03/2026</span>
     </div>
 
-    <!-- PIN LOCK OVERLAY -->
+  <!-- PIN LOCK OVERLAY -->
     <div id="lock-screen" class="bg-earth-100/90 dark:bg-slate-950/90" style="background: rgba(247, 243, 233, 0.95); display: none;">
         <div class="w-full max-w-xs p-10 space-y-8 text-center">
             <div class="w-20 h-20 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl text-white" style="border-radius:2rem;">
@@ -988,26 +988,26 @@
                 <p class="text-earth-800\/40 dark:text-slate-400 mt-1" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;">Secure Access Only</p>
             </div>
             <div class="flex justify-center gap-4 py-4">
-                <div id="dot-1" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: rgb(16, 185, 129);"></div>
-                <div id="dot-2" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: rgb(16, 185, 129);"></div>
-                <div id="dot-3" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: rgb(16, 185, 129);"></div>
-                <div id="dot-4" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: rgb(16, 185, 129);"></div>
+                <div id="dot-1" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: transparent;"></div>
+                <div id="dot-2" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: transparent;"></div>
+                <div id="dot-3" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: transparent;"></div>
+                <div id="dot-4" class="w-4 h-4 rounded-full border-2 border-earth-200 dark:border-slate-700" style="background: transparent;"></div>
             </div>
             <div class="grid grid-cols-3 gap-3">
-                <button onclick="pressPin(&#39;1&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">1</button>
-                <button onclick="pressPin(&#39;2&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">2</button>
-                <button onclick="pressPin(&#39;3&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">3</button>
-                <button onclick="pressPin(&#39;4&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">4</button>
-                <button onclick="pressPin(&#39;5&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">5</button>
-                <button onclick="pressPin(&#39;6&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">6</button>
-                <button onclick="pressPin(&#39;7&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">7</button>
-                <button onclick="pressPin(&#39;8&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">8</button>
-                <button onclick="pressPin(&#39;9&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">9</button>
+                <button onclick="pressPin('1')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">1</button>
+                <button onclick="pressPin('2')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">2</button>
+                <button onclick="pressPin('3')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">3</button>
+                <button onclick="pressPin('4')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">4</button>
+                <button onclick="pressPin('5')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">5</button>
+                <button onclick="pressPin('6')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">6</button>
+                <button onclick="pressPin('7')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">7</button>
+                <button onclick="pressPin('8')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">8</button>
+                <button onclick="pressPin('9')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">9</button>
                 <button onclick="clearPin()" class="h-16 text-rose-500 font-black text-xs uppercase">Clear</button>
-                <button onclick="pressPin(&#39;0&#39;)" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">0</button>
+                <button onclick="pressPin('0')" class="h-16 bg-white dark:bg-slate-900 rounded-2xl font-black text-2xl active-scale shadow-sm">0</button>
                 <button id="pin-setup-btn" onclick="saveNewPin()" class="h-16 text-emerald-600 font-black text-xs uppercase">Set</button>
             </div>
-            <button onclick="forgotPinFlow()" style="font-size:10px;font-weight:900;color:#f43f5e;text-transform:uppercase;letter-spacing:0.1em;padding-top:1rem;display:block;width:100%;background:none;border:none;cursor:pointer;">Reset Data &amp; PIN</button>
+            <button onclick="forgotPinFlow()" style="font-size:10px;font-weight:900;color:#f43f5e;text-transform:uppercase;letter-spacing:0.1em;padding-top:1rem;display:block;width:100%;background:none;border:none;cursor:pointer;">Reset Data & PIN</button>
         </div>
     </div>
 
@@ -1037,19 +1037,19 @@
                         <span style="font-size:9px;font-weight:900;color:#f59e0b;text-transform:uppercase;letter-spacing:0.2em;margin-top:0.25rem;">Drawer</span>
                     </div>
                 </div>
-                <div class="flex justify-between items-center w-full max-w-4xl mx-auto px-2">
+<div class="flex justify-between items-center w-full max-w-4xl mx-auto px-2">
                     <div class="flex gap-2 md:gap-4 items-start">
                         <button onclick="toggleTheme()" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moon-icon" class="w-5 h-5 block dark:hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sun-icon" class="w-5 h-5 hidden dark:block"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
                         </button>
-                        <button onclick="toggleView(&#39;credit-ledger&#39;)" class="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-2xl active-scale shadow-sm">
+                        <button onclick="toggleView('credit-ledger')" class="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-2xl active-scale shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><circle cx="12" cy="8" r="2"></circle><path d="M15 13a3 3 0 1 0-6 0"></path></svg>
                         </button>
                         <button onclick="openCashUpModal()" class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-2xl active-scale shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path></svg>
                         </button>
-                        <button onclick="toggleView(&#39;expense-log&#39;)" class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-2xl active-scale shadow-sm">
+                        <button onclick="toggleView('expense-log')" class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-2xl active-scale shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="12" cy="12" r="10"></circle><line x1="8" x2="16" y1="12" y2="12"></line></svg>
                         </button>
                         <button onclick="lockApp()" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
@@ -1057,17 +1057,17 @@
                         </button>
                     </div>
                     <div class="flex gap-2 md:gap-4 items-start">
-                        <button onclick="toggleView(&#39;inventory&#39;)" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
+                        <button onclick="toggleView('inventory')" class="p-3 bg-earth-50 dark:bg-slate-800 text-earth-900 dark:text-white rounded-2xl active-scale shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M16.5 9.4 7.55 4.24"></path><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line></svg>
                         </button>
-                        <button onclick="toggleView(&#39;dashboard&#39;)" class="p-3 bg-emerald-600 text-white rounded-2xl shadow-lg active-scale">
+                        <button onclick="toggleView('dashboard')" class="p-3 bg-emerald-600 text-white rounded-2xl shadow-lg active-scale">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
                         </button>
                     </div>
                 </div>
             </header>
 
-            <div id="main-content" class="flex-1 overflow-y-auto pb-\[55vh\] lg:pb-10 transition-all duration-300" style="padding-bottom:55vh;">
+          <div id="main-content" class="flex-1 overflow-y-auto pb-\[55vh\] lg:pb-10 transition-all duration-300" style="padding-bottom:55vh;">
                 <!-- POS VIEW -->
                 <div id="pos-view" class="p-4">
                     <div class="relative mb-6">
@@ -1075,15 +1075,15 @@
                         <input type="text" id="pos-search" oninput="handleSearch(this.value)" placeholder="Search items..." class="w-full p-4 pl-12 bg-white dark:bg-slate-900 border border-earth-100 dark:border-slate-800 outline-none font-bold text-earth-900 dark:text-slate-300 shadow-sm text-center" style="border-radius:1.5rem;">
                     </div>
                     <nav id="category-nav" class="flex gap-3 mb-6 overflow-x-auto scrollbar-hide py-2">
-                <button onclick="setCat(&#39;All&#39;)" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:#059669;color:white;box-shadow:0 4px 12px rgba(5,150,105,0.3);">
+                <button onclick="setCat('All')" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:#059669;color:white;box-shadow:0 4px 12px rgba(5,150,105,0.3);">
                     All
                 </button>
             
-                <button onclick="setCat(&#39;Grocery&#39;)" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:white;border:1px solid #f7f3e9;color:rgba(74,68,58,0.4);">
+                <button onclick="setCat('Grocery')" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:white;border:1px sd #f7f3e9;color:rgba(74,68,58,0.4);">
                     Grocery
                 </button>
             
-                <button onclick="setCat(&#39;Drinks&#39;)" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:white;border:1px solid #f7f3e9;color:rgba(74,68,58,0.4);">
+                <button onclick="setCat('Drinks')" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:white;border:1px solid #f7f3e9;color:rgba(74,68,58,0.4);">
                     Drinks
                 </button>
             </nav>
@@ -1123,10 +1123,10 @@
                 </div>
                 </div>
 
-                <!-- CREDIT LEDGER VIEW -->
+<!-- CREDIT LEDGER VIEW -->
                 <div id="credit-ledger-view" class="hidden max-w-4xl mx-auto space-y-6 py-8 px-4 text-center">
                     <div class="flex justify-between items-center mb-4">
-                        <button onclick="toggleView(&#39;pos&#39;)" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
+                        <button onclick="toggleView('pos')" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
                         <button onclick="downloadCreditPDF()" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black shadow-md active-scale flex items-center gap-2" style="font-size:10px;text-transform:uppercase;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line></svg> PDF CREDIT BOOK
                         </button>
@@ -1138,7 +1138,7 @@
                 <!-- EXPENSE LOG VIEW -->
                 <div id="expense-log-view" class="hidden max-w-4xl mx-auto space-y-6 py-8 px-4 text-center">
                     <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
-                        <button onclick="toggleView(&#39;pos&#39;)" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
+                        <button onclick="toggleView('pos')" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
                         <div class="flex gap-2">
                             <button onclick="downloadExpensePDF()" class="bg-earth-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-2xl font-black shadow-md active-scale flex items-center gap-2" style="font-size:10px;text-transform:uppercase;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line></svg> PDF EXPENSES
@@ -1152,7 +1152,7 @@
                 <!-- DAILY SALES LEDGER VIEW -->
                 <div id="sales-ledger-view" class="hidden max-w-4xl mx-auto space-y-6 py-8 px-4 text-center">
                     <div class="flex justify-between items-center mb-4">
-                        <button onclick="toggleView(&#39;dashboard&#39;)" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
+                        <button onclick="toggleView('dashboard')" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
                         <button onclick="downloadSalesPDF()" class="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-black shadow-md active-scale flex items-center gap-2" style="font-size:10px;text-transform:uppercase;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line></svg> EXPORT ALL TO PDF
                         </button>
@@ -1181,7 +1181,7 @@
                 <!-- INVENTORY VIEW -->
                 <div id="inventory-view" class="hidden max-w-4xl mx-auto space-y-6 py-8 px-4 text-center">
                     <div class="flex justify-between items-center mb-4">
-                        <button onclick="toggleView(&#39;pos&#39;)" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
+                        <button onclick="toggleView('pos')" class="bg-earth-200 dark:bg-slate-800 px-5 py-3 rounded-2xl" style="font-size:10px;font-weight:900;text-transform:uppercase;">← Back</button>
                         <button onclick="openAddItemModal()" class="bg-emerald-600 text-white px-8 py-4 font-black shadow-lg active-scale" style="border-radius:2rem;font-size:0.875rem;">+ ADD NEW STOCK</button>
                     </div>
                     <div id="inventory-list" class="grid grid-cols-1 gap-6"></div>
@@ -1190,13 +1190,13 @@
                 <!-- DASHBOARD VIEW -->
                 <div id="dashboard-view" class="hidden max-w-3xl mx-auto space-y-6 py-8 px-4 text-center">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button onclick="toggleView(&#39;pos&#39;)" class="bg-emerald-600 text-white py-6 font-black text-xl shadow-xl flex items-center justify-center gap-3 active-scale" style="border-radius:2.5rem;">
+                        <button onclick="toggleView('pos')" class="bg-emerald-600 text-white py-6 font-black text-xl shadow-xl flex items-center justify-center gap-3 active-scale" style="border-radius:2.5rem;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg> GO SELL
                         </button>
                         <div class="flex bg-white dark:bg-slate-900 p-2 border border-earth-100 dark:border-slate-800" style="border-radius:2.5rem;">
-                            <button onclick="setReportPeriod(&#39;daily&#39;)" id="tab-daily" class="flex-1 py-4 font-black bg-earth-900 dark:bg-white text-white dark:text-slate-900" style="border-radius:2rem;font-size:10px;text-transform:uppercase;">Daily</button>
-                            <button onclick="setReportPeriod(&#39;weekly&#39;)" id="tab-weekly" class="flex-1 py-4 font-black" style="border-radius:2rem;font-size:10px;text-transform:uppercase;color:rgba(74,68,58,0.4);">Weekly</button>
-                            <button onclick="setReportPeriod(&#39;monthly&#39;)" id="tab-monthly" class="flex-1 py-4 font-black" style="border-radius:2rem;font-size:10px;text-transform:uppercase;color:rgba(74,68,58,0.4);">Monthly</button>
+                            <button onclick="setReportPeriod('daily')" id="tab-daily" class="flex-1 py-4 font-black bg-earth-900 dark:bg-white text-white dark:text-slate-900" style="border-radius:2rem;font-size:10px;text-transform:uppercase;">Daily</button>
+                            <button onclick="setReportPeriod('weekly')" id="tab-weekly" class="flex-1 py-4 font-black" style="border-radius:2rem;font-size:10px;text-transform:uppercase;color:rgba(74,68,58,0.4);">Weekly</button>
+                            <button onclick="setReportPeriod('monthly')" id="tab-monthly" class="flex-1 py-4 font-black" style="border-radius:2rem;font-size:10px;text-transform:uppercase;color:rgba(74,68,58,0.4);">Monthly</button>
                         </div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 p-8 shadow-xl border border-earth-100 dark:border-slate-800 text-center space-y-6 text-earth-900 dark:text-white" style="border-radius:3.5rem;">
@@ -1222,8 +1222,8 @@
                             </div>
                             <p id="target-progress-msg" style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;text-align:center;"></p>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="toggleView(&#39;sales-ledger&#39;)" class="py-4 bg-earth-900 dark:bg-white text-white dark:text-slate-900 font-black active-scale shadow-md flex items-center justify-center gap-2" style="border-radius:2rem;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">
+<div class="grid grid-cols-2 gap-3">
+                            <button onclick="toggleView('sales-ledger')" class="py-4 bg-earth-900 dark:bg-white text-white dark:text-slate-900 font-black active-scale shadow-md flex items-center justify-center gap-2" style="border-radius:2rem;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> TODAY'S SALES
                             </button>
                             <button onclick="shareDailySummary()" class="py-4 bg-emerald-100 dark:bg-emerald-950/20 text-emerald-600 font-black active-scale flex items-center justify-center gap-2" style="border-radius:2rem;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">
@@ -1243,7 +1243,7 @@
                             <input type="text" id="biz-name-input" oninput="saveBizName(this.value)" class="w-full p-5 bg-earth-50 dark:bg-slate-800 rounded-2xl border border-earth-100 dark:border-slate-700 outline-none font-black text-lg text-center">
                             <div class="grid grid-cols-2 gap-4 pt-6">
                                 <button onclick="exportBackup()" class="p-6 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 active-scale font-black uppercase" style="border-radius:2.5rem;font-size:10px;">BACKUP DATA</button>
-                                <button onclick="document.getElementById(&#39;import-input&#39;).click()" class="p-6 bg-blue-50 dark:bg-blue-950/20 text-blue-600 active-scale font-black uppercase" style="border-radius:2.5rem;font-size:10px;">RESTORE DATA</button>
+                                <button onclick="document.getElementById('import-input').click()" class="p-6 bg-blue-50 dark:bg-blue-950/20 text-blue-600 active-scale font-black uppercase" style="border-radius:2.5rem;font-size:10px;">RESTORE DATA</button>
                                 <input type="file" id="import-input" class="hidden" accept=".json" onchange="importBackup(event)">
                             </div>
                             <div class="space-y-2">
@@ -1271,10 +1271,10 @@
                 <div class="pt-8 mt-auto space-y-6 text-center">
                     <p id="desktop-total" class="font-black tracking-tighter text-right leading-none" style="font-size:3.5rem;">K0</p>
                     <div class="grid grid-cols-2 gap-2 text-center">
-                        <button onclick="startSaleFlow(&#39;Cash&#39;)" id="desktop-cash-btn" class="bg-emerald-600 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">CASH</button>
-                        <button onclick="startSaleFlow(&#39;MoMo&#39;)" id="desktop-momo-btn" class="bg-sky-600 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">MOMO</button>
-                        <button onclick="startSaleFlow(&#39;Split&#39;)" id="desktop-split-btn" class="bg-amber-500 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">SPLIT</button>
-                        <button onclick="startSaleFlow(&#39;Credit&#39;)" id="desktop-credit-btn" class="bg-blue-600 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">CREDIT</button>
+                        <button onclick="startSaleFlow('Cash')" id="desktop-cash-btn" class="bg-emerald-600 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">CASH</button>
+                        <button onclick="startSaleFlow('MoMo')" id="desktop-momo-btn" class="bg-sky-600 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">MOMO</button>
+                        <button onclick="startSaleFlow('Split')" id="desktop-split-btn" class="bg-amber-500 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">SPLIT</button>
+                        <button onclick="startSaleFlow('Credit')" id="desktop-credit-btn" class="bg-blue-600 text-white py-4 font-black text-sm active-scale" style="border-radius:2rem;" disabled="">CREDIT</button>
                     </div>
                 </div>
             </div>
@@ -1288,10 +1288,10 @@
             </div>
             <div id="mobile-cart-items" class="overflow-y-auto flex-1 mb-4 space-y-2 scrollbar-hide"></div>
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="startSaleFlow(&#39;Cash&#39;)" class="bg-emerald-600 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">CASH</button>
-                <button onclick="startSaleFlow(&#39;MoMo&#39;)" class="bg-sky-600 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">MOMO</button>
-                <button onclick="startSaleFlow(&#39;Split&#39;)" class="bg-amber-500 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">SPLIT</button>
-                <button onclick="startSaleFlow(&#39;Credit&#39;)" class="bg-blue-600 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">CREDIT</button>
+                <button onclick="startSaleFlow('Cash')" class="bg-emerald-600 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">CASH</button>
+                <button onclick="startSaleFlow('MoMo')" class="bg-sky-600 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">MOMO</button>
+                <button onclick="startSaleFlow('Split')" class="bg-amber-500 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">SPLIT</button>
+                <button onclick="startSaleFlow('Credit')" class="bg-blue-600 text-white py-5 font-black text-lg active-scale" style="border-radius:2rem;">CREDIT</button>
             </div>
         </div>
     </div>
@@ -1342,46 +1342,139 @@
         </div>
     </div>
 
-    <div id="add-modal" class="fixed inset-0 hidden flex items-center justify-center p-6 text-center" style="background: rgba(45, 41, 35, 0.6); backdrop-filter: blur(16px); z-index: 500; display: none;">
-        <div class="bg-white dark:bg-slate-900 p-10 w-full max-w-md space-y-4" style="border-radius:3rem;">
-            <h2 class="text-xl font-black">Stock Item Details</h2>
-            <div class="grid grid-cols-1 gap-3">
-                <input type="text" id="add-name" placeholder="Item Name" class="w-full p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center">
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="add-cost" placeholder="Cost (K)" class="p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center">
-                    <input type="number" id="add-price" placeholder="Price (K)" class="p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center">
+<div id="add-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 text-center" style="background: rgba(45, 41, 35, 0.6); backdrop-filter: blur(16px); z-index: 500; display: none;">
+    <div class="w-full max-w-md overflow-hidden" style="border-radius:2rem; background: white; max-height:94vh; display:flex; flex-direction:column;">
+
+        <div style="background:#059669; padding:1.1rem 1.4rem; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="add-stock" placeholder="Initial Stock" class="p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center">
-                    <select id="add-cat" class="p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center appearance-none">
-                        <option>Grocery</option>
-                        <option>Drinks</option>
-                        <option>Snacks</option>
-                        <option>Fresh</option>
-                        <option>Hardware</option>
-                        <option>Beauty</option>
-                    </select>
+                <div style="text-align:left;">
+                    <p style="font-size:14px; font-weight:900; color:white; margin:0; line-height:1;">Add Stock Item</p>
+                    <p style="font-size:11px; color:rgba(255,255,255,0.65); margin:3px 0 0; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">New product for your inventory</p>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-3 pt-4">
-                <button onclick="closeAddItemModal()" class="py-5 bg-earth-100 dark:bg-slate-800 rounded-2xl font-black uppercase" style="font-size:10px;">Cancel</button>
-                <button onclick="saveNewItem()" class="py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase" style="font-size:10px;">Save Item</button>
+            <button onclick="closeAddItemModal()" style="width:30px; height:30px; border-radius:999px; background:rgba(255,255,255,0.15); border:none; color:white; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+        </div>
+
+        <div style="padding:1.25rem 1.4rem; display:flex; flex-direction:column; gap:13px; overflow-y:auto;">
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Item Name</p>
+                <input type="text" id="add-name" placeholder="e.g. Coca Cola 500ml" style="width:100%; box-sizing:border-box; padding:11px 16px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-weight:900; font-size:14px; text-align:center; outline:none;">
             </div>
+
+            <div style="height:0.5px; background:#f0ece0;"></div>
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:8px;">Stock Quantity</p>
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <button id="add-mode-units" onclick="setAddMode('units')" style="flex:1; padding:9px; border-radius:12px; border:none; background:#059669; color:white; font-size:11px; font-weight:900; cursor:pointer;">Units</button>
+                    <button id="add-mode-cases" onclick="setAddMode('cases')" style="flex:1; padding:9px; border-radius:12px; border:1px solid #f0ece0; background:#f7f3e9; color:rgba(74,68,58,0.5); font-size:11px; font-weight:900; cursor:pointer;">Cases</button>
+                    <button id="add-mode-mixed" onclick="setAddMode('mixed')" style="flex:1; padding:9px; border-radius:12px; border:1px solid #f0ece0; background:#f7f3e9; color:rgba(74,68,58,0.5); font-size:11px; font-weight:900; cursor:pointer;">Mixed</button>
+                </div>
+
+                <div id="add-units-section">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Units</p>
+                    <input type="number" id="add-stock" oninput="calcAddStock()" value="24" style="width:100%; box-sizing:border-box; padding:11px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-size:22px; font-weight:900; text-align:center; outline:none;">
+                </div>
+
+                <div id="add-cases-section" style="display:none;">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Case Size (units per case)</p>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                        <span id="acs-6" onclick="setAddCaseSize(6)" style="padding:6px 14px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer;">6</span>
+                        <span id="acs-12" onclick="setAddCaseSize(12)" style="padding:6px 14px; border-radius:999px; background:#059669; color:white; font-size:11px; font-weight:900; cursor:pointer;">12</span>
+                        <span id="acs-24" onclick="setAddCaseSize(24)" style="padding:6px 14px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer;">24</span>
+                        <span id="acs-48" onclick="setAddCaseSize(48)" style="padding:6px 14px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer;">48</span>
+                    </div>
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Number of Cases</p>
+                    <input type="number" id="add-cases-input" oninput="calcAddStock()" value="2" style="width:100%; box-sizing:border-box; padding:11px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-size:22px; font-weight:900; text-align:center; outline:none;">
+                </div>
+
+                <div id="add-mixed-section" style="display:none;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <div>
+                            <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Cases</p>
+                            <input type="number" id="add-mixed-cases" oninput="calcAddStock()" value="1" style="width:100%; box-sizing:border-box; padding:10px; border-radius:12px; border:1px solid #f0ece0; background:#f7f3e9; font-size:18px; font-weight:900; text-align:center; outline:none;">
+                        </div>
+                        <div>
+                            <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Extra Units</p>
+                            <input type="number" id="add-mixed-units" oninput="calcAddStock()" value="6" style="width:100%; box-sizing:border-box; padding:10px; border-radius:12px; border:1px solid #f0ece0; background:#f7f3e9; font-size:18px; font-weight:900; text-align:center; outline:none;">
+                        </div>
+                    </div>
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Case Size</p>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <span id="amcs-6" onclick="setAddMixedCase(6)" style="padding:6px 14px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer;">6</span>
+                        <span id="amcs-12" onclick="setAddMixedCase(12)" style="padding:6px 14px; border-radius:999px; background:#059669; color:white; font-size:11px; font-weight:900; cursor:pointer;">12</span>
+                        <span id="amcs-24" onclick="setAddMixedCase(24)" style="padding:6px 14px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer;">24</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height:0.5px; background:#f0ece0;"></div>
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Total Cost Paid to Supplier (K)</p>
+                <div style="position:relative;">
+                    <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:900; color:#059669;">K</span>
+                    <input type="number" id="add-cost" oninput="updateAddMargin()" placeholder="0" style="width:100%; box-sizing:border-box; padding:11px 11px 11px 28px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-size:22px; font-weight:900; text-align:center; outline:none;">
+                </div>
+                <p id="add-cost-per-unit" style="font-size:10px; font-weight:900; color:rgba(74,68,58,0.4); margin:6px 0 0; text-align:center;">Enter supplier cost to see cost per unit</p>
+            </div>
+
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin:0;">Sell Price per Unit (K)</p>
+                    <button id="add-suggest-btn" onclick="applyAddMargin()" style="display:none; padding:4px 10px; border-radius:999px; background:#eff6ff; border:none; font-size:10px; font-weight:900; color:#2563eb; cursor:pointer;">Suggest →</button>
+                </div>
+                <div style="position:relative;">
+                    <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:900; color:#059669;">K</span>
+                    <input type="number" id="add-price" oninput="updateAddMargin()" placeholder="0" style="width:100%; box-sizing:border-box; padding:11px 11px 11px 28px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-size:22px; font-weight:900; text-align:center; outline:none;">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <span onclick="setAddMarginTarget(20)" id="amt-20" style="flex:1; padding:6px 4px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer; text-align:center;">20%</span>
+                <span onclick="setAddMarginTarget(30)" id="amt-30" style="flex:1; padding:6px 4px; border-radius:999px; background:#059669; color:white; font-size:11px; font-weight:900; cursor:pointer; text-align:center;">30%</span>
+                <span onclick="setAddMarginTarget(40)" id="amt-40" style="flex:1; padding:6px 4px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer; text-align:center;">40%</span>
+                <span onclick="setAddMarginTarget(50)" id="amt-50" style="flex:1; padding:6px 4px; border-radius:999px; background:#f7f3e9; border:1px solid #f0ece0; font-size:11px; font-weight:900; color:rgba(74,68,58,0.5); cursor:pointer; text-align:center;">50%</span>
+            </div>
+
+            <div id="add-margin-box" style="background:#ecfdf5; border-radius:12px; padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#059669;">Profit Margin</span>
+                <span id="add-margin-val" style="font-size:18px; font-weight:900; color:#059669;">—</span>
+            </div>
+
+            <div style="height:0.5px; background:#f0ece0;"></div>
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:8px;">Category</p>
+                <div id="add-cat-list" style="display:flex; flex-direction:column; gap:4px;"></div>
+                <input type="text" id="add-custom-cat" placeholder="New category name..." class="hidden" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:12px; border:1px solid #059669; background:#f7f3e9; font-weight:900; font-size:14px; text-align:center; outline:none; margin-top:6px;">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-bottom:4px;">
+                <button onclick="closeAddItemModal()" style="padding:13px; border-radius:16px; font-weight:900; font-size:10px; text-transform:uppercase; border:1px solid #f0ece0; background:#f7f3e9; cursor:pointer; color:rgba(74,68,58,0.6);">Cancel</button>
+                <button onclick="saveNewItem()" style="padding:13px; border-radius:16px; font-weight:900; font-size:10px; text-transform:uppercase; border:none; cursor:pointer; background:#059669; color:white;">Save Item</button>
+            </div>
+
         </div>
     </div>
+</div>
 
-    <div id="expense-modal" class="fixed inset-0 hidden flex items-center justify-center p-6 text-center" style="background: rgba(45, 41, 35, 0.6); backdrop-filter: blur(16px); z-index: 500; display: none;">
+ <div id="expense-modal" class="fixed inset-0 hidden flex items-center justify-center p-6 text-center" style="background: rgba(45, 41, 35, 0.6); backdrop-filter: blur(16px); z-index: 500; display: none;">
         <div class="bg-white dark:bg-slate-900 p-10 w-full max-w-sm space-y-4" style="border-radius:3rem;">
             <h2 class="text-xl font-black">Record Expense</h2>
             <input type="text" id="exp-desc" placeholder="Description (e.g. Paid driver)" class="w-full p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center">
             <input type="number" id="exp-amount" placeholder="Amount (K)" class="w-full p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center">
             <div class="grid grid-cols-3 gap-2">
-                <button onclick="selectExpCat(this,&#39;Transport&#39;)" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">🚗 Transport</button>
-                <button onclick="selectExpCat(this,&#39;Stock&#39;)" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">📦 Stock</button>
-                <button onclick="selectExpCat(this,&#39;Rent&#39;)" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">🏠 Rent</button>
-                <button onclick="selectExpCat(this,&#39;Utilities&#39;)" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">💡 Utilities</button>
-                <button onclick="selectExpCat(this,&#39;Other&#39;)" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">📝 Other</button>
-                <button onclick="selectExpCat(this,&#39;__new__&#39;)" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">✚ New</button>
+                <button onclick="selectExpCat(this,'Transport')" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">🚗 Transport</button>
+                <button onclick="selectExpCat(this,'Stock')" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">📦 Stock</button>
+                <button onclick="selectExpCat(this,'Rent')" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">🏠 Rent</button>
+                <button onclick="selectExpCat(this,'Utilities')" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">💡 Utilities</button>
+                <button onclick="selectExpCat(this,'Other')" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">📝 Other</button>
+                <button onclick="selectExpCat(this,'__new__')" class="exp-cat-btn py-3 px-2 rounded-2xl font-black active-scale bg-earth-50 dark:bg-slate-800" style="font-size:9px;text-transform:uppercase;color:rgba(74,68,58,0.5);">✚ New</button>
             </div>
             <input type="text" id="exp-custom-cat" placeholder="Custom category name..." class="w-full p-4 bg-earth-50 dark:bg-slate-800 rounded-2xl font-black text-center hidden">
             <div class="grid grid-cols-2 gap-3 pt-2">
@@ -1405,16 +1498,103 @@
             </div>
         </div>
     </div>
+<!-- STOCK UPDATE MODAL - OPTIMIZED FOR MOBILE & DESKTOP -->
+<div id="stock-update-modal" class="fixed inset-0 bg-earth-900/90 backdrop-blur-2xl hidden flex items-center justify-center p-3 sm:p-6 text-center" style="z-index: 2500; display: none;">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl sm:rounded-[3rem] overflow-hidden flex flex-col" style="max-height: 95vh; max-height: 95dvh;">
+<div style="overflow-y: auto; height: 100vh; display: flex; flex-direction: column; background-color: #ffffff; font-family: sans-serif;">
+    
+    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+        
+        <header>
+            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); letter-spacing: 0.1em; margin: 0;">Update Stock — New Delivery</p>
+            <h1 id="stock-item-name" style="font-weight: 900; font-size: 1.25rem; color: #059669; margin: 0.5rem 0 0; line-height: 1.2; word-break: break-word;">
+                Select an Item...
+            </h1>
+        </header>
+        
+        <section style="background: #ecfdf5; border-radius: 1.5rem; padding: 1.25rem; border: 1px solid #d1fae5;">
+            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: #059669; opacity: 0.7; letter-spacing: 0.1em; margin: 0 0 0.5rem;">Current Stock Available</p>
+            <p id="stock-current-display" style="font-weight: 900; font-size: 2.25rem; color: #059669; margin: 0;">0 units</p>
+            <p id="stock-current-cases" style="font-size: 11px; color: #059669; opacity: 0.8; margin: 0.25rem 0 0; font-weight: 600;">Equals: 0 cases + 0 extras</p>
+        </section>
+        
+        <nav>
+            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); letter-spacing: 0.1em; margin: 0 0 0.75rem;">How to Enter Stock</p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <button id="stock-mode-units" onclick="setStockMode('units')" style="padding: 12px 4px; border-radius: 12px; border: none; background: #059669; color: white; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Units</button>
+                <button id="stock-mode-cases" onclick="setStockMode('cases')" style="padding: 12px 4px; border-radius: 12px; border: 1px solid #f0ece0; background: #f7f3e9; color: rgba(74, 68, 58, 0.6); font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Cases</button>
+                <button id="stock-mode-mixed" onclick="setStockMode('mixed')" style="padding: 12px 4px; border-radius: 12px; border: 1px solid #f0ece0; background: #f7f3e9; color: rgba(74, 68, 58, 0.6); font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer;">Mixed</button>
+            </div>
+        </nav>
 
-    <div id="confirm-modal" class="fixed inset-0 hidden flex items-center justify-center p-6 text-center" style="background: rgba(45, 41, 35, 0.8); backdrop-filter: blur(16px); z-index: 10010; display: none;">
-        <div class="bg-white dark:bg-slate-900 p-8 w-full max-w-xs space-y-6" style="border-radius:2rem;">
-            <p id="confirm-msg" class="font-black text-lg">Are you sure?</p>
-            <div class="flex gap-4">
-                <button onclick="closeConfirmModal(false)" class="flex-1 py-4 bg-earth-50 dark:bg-slate-800 rounded-xl font-black uppercase" style="font-size:12px;">No</button>
-                <button onclick="closeConfirmModal(true)" class="flex-1 py-4 bg-rose-500 text-white rounded-xl font-black uppercase" style="font-size:12px;">Yes</button>
+        <div style="background: #f7f3e9; border-radius: 1.5rem; padding: 1.25rem;">
+            
+            <!-- UNITS INPUT -->
+            <div id="stock-mode-units-input">
+                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.75rem;">Enter Total Units to Add</p>
+                <input type="number" id="stock-units-input" placeholder="0" oninput="updateStockPreview()" 
+                    style="width: 100%; padding: 1rem; border-radius: 1rem; border: 1px solid #e5e7eb; font-size: 1.75rem; font-weight: 900; text-align: center; color: #2d2923; box-sizing: border-box; outline-color: #059669;">
+            </div>
+
+            <!-- CASES INPUT -->
+            <div id="stock-mode-cases-input" style="display: none;">
+                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.5rem;">Units Per Case</p>
+                <div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <button id="stock-case-6" onclick="setStockCaseSize(6)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">6</button>
+                    <button id="stock-case-12" onclick="setStockCaseSize(12)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: none; background: #059669; color: white; font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">12</button>
+                    <button id="stock-case-24" onclick="setStockCaseSize(24)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">24</button>
+                    <button id="stock-case-48" onclick="setStockCaseSize(48)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">48</button>
+                </div>
+                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.5rem;">Number of Cases</p>
+                <input type="number" id="stock-cases-input" placeholder="0" oninput="updateStockPreview()" 
+                    style="width: 100%; padding: 1rem; border-radius: 1rem; border: 1px solid #e5e7eb; font-size: 1.75rem; font-weight: 900; text-align: center; box-sizing: border-box; outline-color: #059669;">
+            </div>
+
+            <!-- MIXED INPUT -->
+            <div id="stock-mode-mixed-input" style="display: none;">
+                <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: rgba(74, 68, 58, 0.5); margin-bottom: 0.5rem;">Units Per Case</p>
+                <div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <button id="stock-mixed-case-6" onclick="setStockMixedCaseSize(6)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">6</button>
+                    <button id="stock-mixed-case-12" onclick="setStockMixedCaseSize(12)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: none; background: #059669; color: white; font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">12</button>
+                    <button id="stock-mixed-case-24" onclick="setStockMixedCaseSize(24)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">24</button>
+                    <button id="stock-mixed-case-48" onclick="setStockMixedCaseSize(48)" style="flex: 1; min-width: 50px; padding: 10px 6px; border-radius: 10px; border: 1px solid #f0ece0; background: white; color: rgba(74, 68, 58, 0.6); font-weight: 900; font-size: 11px; cursor: pointer; transition: all 0.2s;">48</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem;">
+                    <div>
+                        <p style="font-size: 9px; font-weight: 900; color: #059669; margin: 0 0 0.5rem; text-transform: uppercase;">Full Cases</p>
+                        <input type="number" id="stock-mixed-cases" placeholder="0" oninput="updateStockPreview()" 
+                            style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; font-size: 1.25rem; font-weight: 900; text-align: center; box-sizing: border-box; outline-color: #059669;">
+                    </div>
+                    <div>
+                        <p style="font-size: 9px; font-weight: 900; color: #059669; margin: 0 0 0.5rem; text-transform: uppercase;">Loose Extras</p>
+                        <input type="number" id="stock-mixed-units" placeholder="0" oninput="updateStockPreview()" 
+                            style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; font-size: 1.25rem; font-weight: 900; text-align: center; box-sizing: border-box; outline-color: #059669;">
+                    </div>
+                </div>
             </div>
         </div>
+
+        <section style="background: #eff6ff; border-radius: 1.5rem; padding: 1rem; border: 2px solid #0284c7;">
+            <p style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: #0284c7; margin: 0 0 0.5rem; letter-spacing: 0.1em;">Total Stock After Update</p>
+            <p id="stock-preview-total" style="font-size: 2rem; font-weight: 900; color: #0284c7; margin: 0;">0 units</p>
+            <p id="stock-preview-breakdown" style="font-size: 11px; color: #0284c7; margin: 4px 0 0; font-weight: 700; opacity: 0.8;">(0 cases + 0 extras)</p>
+        </section>
+
+        <footer style="background: #fffbeb; border-radius: 1rem; padding: 1rem; border-left: 4px solid #f59e0b;">
+            <p style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #d97706; margin: 0 0 0.25rem;">⚠️ Double Check</p>
+            <p style="font-size: 13px; color: #b45309; margin: 0; line-height: 1.4;">Does the "Total Stock After Update" match the physical count on your delivery sheet?</p>
+        </footer>
     </div>
+</div>
+</div>
+        
+        <!-- FIXED BUTTONS AT BOTTOM -->
+        <div style="background: white; border-top: 1px solid #f0ece0; padding: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0;">
+            <button id="stock-cancel-btn" class="py-4 sm:py-5 rounded-2xl font-black uppercase bg-earth-100 dark:bg-slate-800 transition-all active:scale-95" style="font-size:11px;color:#2d2923;cursor:pointer;border:none;">Cancel</button>
+            <button id="stock-confirm-btn" class="py-4 sm:py-5 rounded-2xl font-black uppercase text-white transition-all active:scale-95 shadow-lg" style="font-size:11px;background:#059669;cursor:pointer;border:none;">✓ Confirm</button>
+        </div>
+    </div>
+</div>
 
     <div id="toast" class="fixed bg-earth-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-full shadow-2xl flex items-center gap-3 text-center pointer-events-none" style="top: 7rem; left: 50%; transform: translate(-50%, 20px); opacity: 0; transition: 0.3s; z-index: 10003;">
         <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400 w-6 h-6"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
@@ -1435,7 +1615,7 @@
             <p id="receipt-biz" class="text-lg font-black text-earth-900 dark:text-white"></p>
             <p id="receipt-datetime" style="font-size:9px;font-weight:900;color:rgba(74,68,58,0.3);text-transform:uppercase;letter-spacing:0.1em;"></p>
             <div id="receipt-items" class="space-y-2 text-left border-t border-b border-earth-100 dark:border-slate-800 py-4"></div>
-            <div class="space-y-2 text-left">
+            <div class="space-y-2 text-left">ACC
                 <div class="flex justify-between items-center">
                     <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:rgba(74,68,58,0.4);">Method</span>
                     <span id="receipt-method" class="font-black text-sm"></span>
@@ -1806,13 +1986,25 @@
             }
         }
 
-        function askToClearCart() {
-            showConfirm("Clear entire basket?", () => {
-                cart = {};
-                updateTotals();
-                renderGrid();
-            });
-        }
+     function askToClearCart() {
+    document.getElementById('confirm-modal').style.display = 'flex';
+    document.getElementById('confirm-msg').innerText = "Clear entire basket?";
+    
+    // Setup No button
+    const noBtn = document.querySelector('#confirm-modal .flex button:first-child');
+    noBtn.onclick = () => {
+        document.getElementById('confirm-modal').style.display = 'none';
+    };
+    
+    // Setup Yes button
+    const yesBtn = document.querySelector('#confirm-modal .flex button:last-child');
+    yesBtn.onclick = () => {
+        cart = {};
+        updateTotals();
+        renderGrid();
+        document.getElementById('confirm-modal').style.display = 'none';
+    };
+}
 
         // --- CHECKOUT FLOWS ---
         function startSaleFlow(method) {
@@ -2127,25 +2319,382 @@
             }).join('');
         }
 
-        async function adjustStockLevel(id, delta) {
-            const item = items.find(i => i.id === id);
-            item.stock = Math.max(0, item.stock + delta);
+let stockModalMode = 'units';
+let stockModalCaseSize = 12;
+let stockModalMixedCaseSize = 12;
+
+function setStockMode(mode) {
+    stockModalMode = mode;
+    ['units', 'cases', 'mixed'].forEach(m => {
+        const btn = document.getElementById(`stock-mode-${m}`);
+        const input = document.getElementById(`stock-mode-${m}-input`);
+        if (m === mode) {
+            btn.style.background = '#059669';
+            btn.style.color = 'white';
+            btn.style.border = 'none';
+            if (input) input.style.display = 'block';
+        } else {
+            btn.style.background = '#f7f3e9';
+            btn.style.color = 'rgba(74,68,58,0.5)';
+            btn.style.border = '1px solid #f0ece0';
+            if (input) input.style.display = 'none';
+        }
+    });
+    clearStockInputs();
+    updateStockPreview();
+}
+
+function setStockCaseSize(size) {
+    stockModalCaseSize = size;
+    // Support 6, 12, 24, 48
+    [6, 12, 24, 48].forEach(s => {
+        const btn = document.getElementById(`stock-case-${s}`);
+        if (btn) {
+            if (s === size) {
+                btn.style.background = '#059669';
+                btn.style.color = 'white';
+                btn.style.border = 'none';
+            } else {
+                btn.style.background = 'white';
+                btn.style.color = 'rgba(74,68,58,0.5)';
+                btn.style.border = '1px solid #f0ece0';
+            }
+        }
+    });
+    updateStockPreview();
+}
+
+function setStockMixedCaseSize(size) {
+    stockModalMixedCaseSize = size;
+    // Support 6, 12, 24, 48
+    [6, 12, 24, 48].forEach(s => {
+        const btn = document.getElementById(`stock-mixed-case-${s}`);
+        if (btn) {
+            if (s === size) {
+                btn.style.background = '#059669';
+                btn.style.color = 'white';
+                btn.style.border = 'none';
+            } else {
+                btn.style.background = 'white';
+                btn.style.color = 'rgba(74,68,58,0.5)';
+                btn.style.border = '1px solid #f0ece0';
+            }
+        }
+    });
+    updateStockPreview();
+}
+
+function getStockToAdd() {
+    if (stockModalMode === 'units') {
+        return parseInt(document.getElementById('stock-units-input').value) || 0;
+    } else if (stockModalMode === 'cases') {
+        const numCases = parseInt(document.getElementById('stock-cases-input').value) || 0;
+        return numCases * stockModalCaseSize;
+    } else if (stockModalMode === 'mixed') {
+        const cases = parseInt(document.getElementById('stock-mixed-cases').value) || 0;
+        const units = parseInt(document.getElementById('stock-mixed-units').value) || 0;
+        return (cases * stockModalMixedCaseSize) + units;
+    }
+    return 0;
+}
+
+function updateStockPreview() {
+    const toAdd = getStockToAdd();
+    const currentDisplay = document.getElementById('stock-current-display').innerText;
+    const currentValue = parseInt(currentDisplay) || 0;
+    const newTotal = currentValue + toAdd;
+    
+    // Always break down into 12-unit cases for display
+    const totalCases = Math.floor(newTotal / 12);
+    const totalExtras = newTotal % 12;
+    
+    document.getElementById('stock-preview-total').innerText = `${newTotal} units`;
+    document.getElementById('stock-preview-breakdown').innerText = `(${totalCases} cases + ${totalExtras} extras)`;
+}
+
+function clearStockInputs() {
+    const inputs = [
+        'stock-units-input',
+        'stock-cases-input',
+        'stock-mixed-cases',
+        'stock-mixed-units'
+    ];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
+async function adjustStockLevel(id, delta) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    
+    const oldStock = item.stock;
+    
+    // If adding stock (delta > 0), open modal for detailed entry
+    if (delta > 0) {
+        openStockUpdateModal(id, oldStock);
+        return;
+    }
+    
+    // If reducing stock (delta < 0), do it directly
+    const newStock = Math.max(0, oldStock + delta);
+    item.stock = newStock;
+    await dbSave('items', item);
+    renderInventory();
+    renderGrid();
+}
+
+function openStockUpdateModal(id, currentStock) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    
+    // ===== RESET MODAL STATE =====
+    stockModalMode = 'units';
+    stockModalCaseSize = 12;
+    stockModalMixedCaseSize = 12;
+    clearStockInputs();
+    
+    // ===== SHOW MODAL =====
+    const modal = document.getElementById('stock-update-modal');
+    if (modal) modal.style.display = 'flex';
+    
+    // ===== DISPLAY CURRENT STOCK =====
+    const nameEl = document.getElementById('stock-item-name');
+    if (nameEl) nameEl.innerText = item.name;
+    
+    const currentCases = Math.floor(currentStock / 12);
+    const currentExtras = currentStock % 12;
+    
+    const displayEl = document.getElementById('stock-current-display');
+    if (displayEl) displayEl.innerText = `${currentStock} units`;
+    
+    const casesEl = document.getElementById('stock-current-cases');
+    if (casesEl) casesEl.innerText = `Equals: ${currentCases} cases + ${currentExtras} extras`;
+    
+    // ===== SET INITIAL INPUT MODE =====
+    setStockMode('units');
+    updateStockPreview();
+    
+    // ===== CANCEL BUTTON =====
+    const cancelBtn = document.getElementById('stock-cancel-btn');
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            if (modal) modal.style.display = 'none';
+        };
+    }
+    
+    // ===== CONFIRM BUTTON =====
+    const confirmBtn = document.getElementById('stock-confirm-btn');
+    if (confirmBtn) {
+        confirmBtn.onclick = async () => {
+            const toAdd = getStockToAdd();
+            
+            // Validation: must enter something
+            if (toAdd <= 0) {
+                showToast("❌ Enter stock amount to add!");
+                return;
+            }
+            
+            // Calculate final stock
+            const finalStock = currentStock + toAdd;
+            
+            // Save to database
+            item.stock = finalStock;
             await dbSave('items', item);
+            
+            // Format breakdown for toast
+            const totalCases = Math.floor(finalStock / 12);
+            const totalExtras = finalStock % 12;
+            const breakdown = `${totalCases} cases + ${totalExtras} extras`;
+            
+            // Show confirmation toast
+            showToast(`✓ ${item.name}: +${toAdd} units → ${finalStock} total (${breakdown})`);
+            
+            // Close modal & refresh UI
+            if (modal) modal.style.display = 'none';
             renderInventory();
             renderGrid();
+        };
+    }
+    
+    // Auto-focus first input after modal opens
+    setTimeout(() => {
+        const input = document.getElementById('stock-units-input');
+        if (input) input.focus();
+    }, 100);
+}
+let addMode = 'units';
+        let addCaseSize = 12;
+        let addMixedCase = 12;
+        let addMarginTarget = 30;
+        let addSelectedCat = 'Grocery';
+
+        function setAddMode(m) {
+            addMode = m;
+            ['units','cases','mixed'].forEach(x => {
+                const btn = document.getElementById('add-mode-' + x);
+                btn.style.background = x === m ? '#059669' : '#f7f3e9';
+                btn.style.color = x === m ? 'white' : 'rgba(74,68,58,0.5)';
+                btn.style.border = x === m ? 'none' : '1px solid #f0ece0';
+                document.getElementById('add-' + x + '-section').style.display = x === m ? 'block' : 'none';
+            });
+            calcAddStock();
         }
 
-        function openAddItemModal() { document.getElementById('add-modal').style.display = 'flex'; }
+        function setAddCaseSize(s) {
+            addCaseSize = s;
+            [6,12,24,48].forEach(x => {
+                const el = document.getElementById('acs-' + x);
+                el.style.background = x === s ? '#059669' : '#f7f3e9';
+                el.style.color = x === s ? 'white' : 'rgba(74,68,58,0.5)';
+                el.style.border = x === s ? 'none' : '1px solid #f0ece0';
+            });
+            calcAddStock();
+        }
+
+        function setAddMixedCase(s) {
+            addMixedCase = s;
+            [6,12,24].forEach(x => {
+                const el = document.getElementById('amcs-' + x);
+                el.style.background = x === s ? '#059669' : '#f7f3e9';
+                el.style.color = x === s ? 'white' : 'rgba(74,68,58,0.5)';
+                el.style.border = x === s ? 'none' : '1px solid #f0ece0';
+            });
+            calcAddStock();
+        }
+
+        function setAddMarginTarget(m) {
+            addMarginTarget = m;
+            [20,30,40,50].forEach(x => {
+                const el = document.getElementById('amt-' + x);
+                el.style.background = x === m ? '#059669' : '#f7f3e9';
+                el.style.color = x === m ? 'white' : 'rgba(74,68,58,0.5)';
+                el.style.border = x === m ? 'none' : '1px solid #f0ece0';
+            });
+            applyAddMargin();
+        }
+
+        function getAddUnits() {
+            if (addMode === 'units') return parseInt(document.getElementById('add-stock').value) || 0;
+            if (addMode === 'cases') return (parseInt(document.getElementById('add-cases-input').value) || 0) * addCaseSize;
+            return ((parseInt(document.getElementById('add-mixed-cases').value) || 0) * addMixedCase) + (parseInt(document.getElementById('add-mixed-units').value) || 0);
+        }
+
+        function calcAddStock() { updateAddMargin(); }
+
+        function applyAddMargin() {
+            const totalCost = parseFloat(document.getElementById('add-cost').value) || 0;
+            const units = getAddUnits();
+            if (!totalCost || !units) return;
+            const cpu = totalCost / units;
+            const suggested = Math.ceil(cpu / (1 - addMarginTarget / 100));
+            document.getElementById('add-price').value = suggested;
+            updateAddMargin();
+        }
+
+        function updateAddMargin() {
+            const units = getAddUnits();
+            const totalCost = parseFloat(document.getElementById('add-cost').value) || 0;
+            const price = parseFloat(document.getElementById('add-price').value) || 0;
+            const cpu = units > 0 && totalCost > 0 ? totalCost / units : 0;
+            const valEl = document.getElementById('add-margin-val');
+            const boxEl = document.getElementById('add-margin-box');
+            const cpuLabel = document.getElementById('add-cost-per-unit');
+            const suggestBtn = document.getElementById('add-suggest-btn');
+
+            if (cpu > 0) {
+                cpuLabel.innerText = 'K' + cpu.toFixed(2) + ' cost per unit';
+                suggestBtn.style.display = 'block';
+            } else {
+                cpuLabel.innerText = 'Enter supplier cost to see cost per unit';
+                suggestBtn.style.display = 'none';
+            }
+
+            if (!cpu || !price) { valEl.innerText = '—'; boxEl.style.background = '#ecfdf5'; valEl.style.color = '#059669'; return; }
+            const margin = Math.round(((price - cpu) / price) * 100);
+            valEl.innerText = margin + '%';
+            if (margin < 0) { boxEl.style.background = '#fef2f2'; valEl.style.color = '#f43f5e'; }
+            else if (margin < 15) { boxEl.style.background = '#fffbeb'; valEl.style.color = '#f59e0b'; }
+            else { boxEl.style.background = '#ecfdf5'; valEl.style.color = '#059669'; }
+        }
+
+       function renderAddCatList() {
+    const defaultCats = ['Grocery','Drinks','Snacks','Fresh','Hardware','Beauty'];
+    const userCats = [...new Set(items.map(i => i.cat))].filter(c => !defaultCats.includes(c));
+    const allCats = [...defaultCats, ...userCats];
+    const list = document.getElementById('add-cat-list');
+    
+    list.innerHTML = `
+        <select id="add-cat-select" onchange="selectAddCatDropdown(this.value)" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-size:13px; font-weight:900; color:#2d2923; cursor:pointer; outline:none; appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23059669%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22></polyline></svg>'); background-repeat:no-repeat; background-position:right 8px center; background-size:20px; padding-right:36px;">
+            <option value="" disabled selected style="color:#999;">Select a category...</option>
+            ${allCats.map(c => `<option value="${c}" ${c === addSelectedCat ? 'selected' : ''}>${c}</option>`).join('')}
+            <option value="__new__" style="color:#059669; font-weight:900;">+ Create new category</option>
+        </select>
+        <input type="text" id="add-custom-cat" placeholder="New category name..." class="hidden" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:12px; border:1px solid #059669; background:#f7f3e9; font-weight:900; font-size:14px; text-align:center; outline:none; margin-top:6px;" oninput="addSelectedCat = this.value.trim()">
+    `;
+}
+
+        function selectAddCatDropdown(cat) {
+    const customInput = document.getElementById('add-custom-cat');
+    if (cat === '__new__') {
+        customInput.classList.remove('hidden');
+        customInput.focus();
+        customInput.value = '';
+        addSelectedCat = '';
+        return;
+    }
+    if (cat) {
+        addSelectedCat = cat;
+        customInput.classList.add('hidden');
+        customInput.value = '';
+    }
+}
+
+function selectAddCat(cat) {
+    // Legacy function - now calls dropdown version
+    selectAddCatDropdown(cat);
+}
+
+        function openAddItemModal() {
+            addMode = 'units';
+            addCaseSize = 12;
+            addMixedCase = 12;
+            addMarginTarget = 30;
+            addSelectedCat = items.length > 0 ? items[0].cat : 'Grocery';
+            setAddMode('units');
+            setAddCaseSize(12);
+            setAddMixedCase(12);
+            setAddMarginTarget(30);
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-cost').value = '';
+            document.getElementById('add-price').value = '';
+            document.getElementById('add-stock').value = '24';
+            document.getElementById('add-custom-cat').value = '';
+            document.getElementById('add-custom-cat').classList.add('hidden');
+            document.getElementById('add-margin-val').innerText = '—';
+            document.getElementById('add-margin-box').style.background = '#ecfdf5';
+            document.getElementById('add-cost-per-unit').innerText = 'Enter supplier cost to see cost per unit';
+            document.getElementById('add-suggest-btn').style.display = 'none';
+            renderAddCatList();
+            document.getElementById('add-modal').style.display = 'flex';
+        }
+
         function closeAddItemModal() { document.getElementById('add-modal').style.display = 'none'; }
 
         async function saveNewItem() {
-            const name = document.getElementById('add-name').value;
-            const cost = parseFloat(document.getElementById('add-cost').value);
+            const name = document.getElementById('add-name').value.trim();
+            const totalCost = parseFloat(document.getElementById('add-cost').value) || 0;
             const price = parseFloat(document.getElementById('add-price').value);
-            const stock = parseInt(document.getElementById('add-stock').value);
-            const cat = document.getElementById('add-cat').value;
-            if (!name || isNaN(cost) || isNaN(price)) return showToast("Fill all fields");
-            const item = { id: Date.now(), name, cost, price, stock, cat };
+            const units = getAddUnits();
+            const cat = addSelectedCat === '__new__'
+                ? document.getElementById('add-custom-cat').value.trim()
+                : addSelectedCat;
+            const cost = units > 0 && totalCost > 0 ? parseFloat((totalCost / units).toFixed(2)) : totalCost;
+            if (!name || isNaN(price) || price <= 0) return showToast("Fill item name and sell price");
+            if (!cat) return showToast("Select a category");
+            if (units <= 0) return showToast("Enter stock quantity");
+            const item = { id: Date.now(), name, cost, price, stock: units, cat };
             items.push(item);
             await dbSave('items', item);
             showToast("Item Added");
@@ -2154,7 +2703,6 @@
             renderCategories();
             renderInventory();
         }
-
         async function askToDeleteStock(id) {
             showConfirm("Delete item entirely?", async () => {
                 await dbDelete('items', id);
