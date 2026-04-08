@@ -1286,11 +1286,22 @@ if ('serviceWorker' in navigator) {
             </div>
         </aside>
 
-        <!-- MOBILE DRAWER -->
-        <div id="mobile-drawer" class="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-950 border-t border-earth-100 dark:border-slate-900 p-8 z-50 shadow-2xl text-earth-900 dark:text-white text-center flex flex-col" style="border-radius:3rem 3rem 0 0;transform:translateY(100%);transition:transform 0.5s;max-height:70vh;">
-            <div class="flex justify-between items-center mb-4">
-                <p id="mobile-total" class="font-black tracking-tighter" style="font-size:3rem;">K0</p>
-                <button onclick="askToClearCart()" class="text-rose-400 p-2"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button>
+<!-- MOBILE PAY BUTTON — fixed, only shows when cart has items -->
+        <div id="mobile-pay-btn-wrap" class="lg:hidden" style="display:none;position:fixed;bottom:1.25rem;left:1rem;right:1rem;z-index:50;">
+            <button onclick="openMobileDrawer()" style="width:100%;background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;border-radius:2rem;padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 24px rgba(5,150,105,0.45);cursor:pointer;">
+                <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;opacity:0.85;">Basket</span>
+                <span style="font-size:1.5rem;font-weight:900;letter-spacing:-0.02em;" id="mobile-pay-total">K0</span>
+                <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;background:rgba(255,255,255,0.2);padding:0.4rem 1rem;border-radius:999px;">PAY →</span>
+            </button>
+        </div>
+
+        <!-- MOBILE DRAWER — slides up only when PAY is tapped -->
+        <div id="mobile-drawer" class="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-950 border-t border-earth-100 dark:border-slate-900 p-8 z-50 shadow-2xl text-earth-900 dark:text-white text-center flex flex-col" style="border-radius:3rem 3rem 0 0;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);max-height:75vh;">
+            <!-- Back / close bar -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <button onclick="closeMobileDrawer()" style="display:flex;align-items:center;gap:6px;background:#f7f3e9;border:none;border-radius:999px;padding:8px 16px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#2d2923;cursor:pointer;">← Back</button>
+                <p id="mobile-total" class="font-black tracking-tighter" style="font-size:2.5rem;">K0</p>
+                <button onclick="askToClearCart()" class="text-rose-400" style="background:none;border:none;padding:8px;cursor:pointer;"><svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button>
             </div>
             <div id="mobile-cart-items" class="overflow-y-auto flex-1 mb-4 space-y-2 scrollbar-hide"></div>
             <div class="grid grid-cols-2 gap-2">
@@ -2035,9 +2046,14 @@ if ('serviceWorker' in navigator) {
                 if (el) el.disabled = total === 0;
             });
 
+// Mobile: show PAY button when cart has items, keep drawer hidden until tapped
+            const payWrap = document.getElementById('mobile-pay-btn-wrap');
+            const payTotal = document.getElementById('mobile-pay-total');
+            if (payWrap) payWrap.style.display = total > 0 ? 'block' : 'none';
+            if (payTotal) payTotal.innerText = `K${total}`;
+            // Keep drawer always closed on cart update — user must tap PAY
             const mobileDrawer = document.getElementById('mobile-drawer');
-            if (total > 0) mobileDrawer.style.transform = 'translateY(0)';
-            else mobileDrawer.style.transform = 'translateY(100%)';
+            mobileDrawer.style.transform = 'translateY(100%)';
 
             renderDesktopCart();
         }
@@ -2085,6 +2101,14 @@ if ('serviceWorker' in navigator) {
                 }).join('');
             }
         }
+
+function openMobileDrawer() {
+    document.getElementById('mobile-drawer').style.transform = 'translateY(0)';
+}
+
+function closeMobileDrawer() {
+    document.getElementById('mobile-drawer').style.transform = 'translateY(100%)';
+}
 
 function askToClearCart() {
     const modal = document.getElementById('qty-popup-modal');
