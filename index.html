@@ -512,11 +512,48 @@ if ('serviceWorker' in navigator) {
             .xl\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
         }
 
-        /* Custom app styles */
+/* Custom app styles */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         body { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
         .active-scale:active { transform: scale(0.95); }
+
+        /* DARK THEME — full coverage */
+        .dark #mobile-drawer { background: #0f172a !important; color: white !important; }
+        .dark #mobile-drawer button { color: white; }
+        .dark .add-modal-inner, .dark #add-modal > div { background: #0f172a !important; color: white !important; }
+        .dark #add-modal input, .dark #add-modal select { background: #1e293b !important; color: white !important; border-color: #334155 !important; }
+        .dark #add-modal button { color: white; }
+        .dark #add-margin-box { background: rgba(6,78,59,0.3) !important; }
+        .dark #stock-update-modal > div { background: #0f172a !important; color: white !important; }
+        .dark #stock-update-modal input { background: #1e293b !important; color: white !important; border-color: #334155 !important; }
+        .dark #stock-update-modal button:not([style*="059669"]):not([style*="f43f5e"]) { background: #1e293b !important; color: white !important; }
+        .dark #cashup-modal > div { background: #0f172a !important; color: white !important; }
+        .dark #cashup-modal input { background: #1e293b !important; color: white !important; border-color: #334155 !important; }
+        .dark #cashup-modal #denom-rows > div { background: #1e293b !important; }
+        .dark #cashup-modal #denom-rows input { background: #0f172a !important; }
+        .dark #qty-popup-modal > div { background: #0f172a !important; color: white !important; }
+        .dark #qty-popup-modal input { background: #1e293b !important; color: white !important; border-color: #334155 !important; }
+        .dark #cash-modal > div, .dark #split-modal > div, .dark #credit-modal > div { background: #0f172a !important; color: white !important; }
+        .dark #cash-modal input, .dark #split-modal input, .dark #credit-modal input { background: #1e293b !important; color: white !important; }
+        .dark #expense-modal > div { background: #0f172a !important; color: white !important; }
+        .dark #expense-modal input { background: #1e293b !important; color: white !important; }
+        .dark .exp-cat-btn { background: #1e293b !important; color: rgba(255,255,255,0.6) !important; }
+        .dark #inventory-view div[style*="background:white"] { background: #0f172a !important; color: white !important; }
+        .dark #inventory-view table { background: #0f172a !important; color: white !important; }
+        .dark #inventory-view thead tr { background: #1e293b !important; }
+        .dark #inventory-view th { color: rgba(255,255,255,0.4) !important; border-color: #334155 !important; }
+        .dark #inventory-view td { border-color: #1e293b !important; color: white !important; }
+        .dark #pos-search { background: #0f172a !important; color: white !important; border-color: #1e293b !important; }
+        .dark #category-nav button { background: #1e293b !important; color: rgba(255,255,255,0.5) !important; border-color: #334155 !important; }
+        .dark #category-nav button[style*="059669"] { background: #059669 !important; color: white !important; }
+        .dark .dark-card { background: #0f172a !important; color: white !important; border-color: #1e293b !important; }
+        .dark #credit-ledger-view div[style*="background:white"] { background: #0f172a !important; color: white !important; }
+        .dark #credit-ledger-view div[style*="eff6ff"] { background: rgba(30,58,138,0.3) !important; }
+        .dark #expense-log-view div[style*="background:white"] { background: #0f172a !important; color: white !important; }
+        .dark #sales-ledger-view div[style*="background:white"] { background: #0f172a !important; }
+        .dark #sales-ledger-view tbody tr td { color: #cbd5e1 !important; border-color: #1e293b !important; }
+        .dark #license-footer { background: rgba(5,150,105,0.12) !important; border-color: rgba(5,150,105,0.25) !important; }
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .font-sans { font-family: ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
