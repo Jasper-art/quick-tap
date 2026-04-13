@@ -3947,21 +3947,24 @@ async function openCameraScanner(context) {
 
         scannerActive = true;
         codeReader = new Html5Qrcode("scanner-video");
-
-        await codeReader.start(
-            { facingMode: "environment" }, // back camera
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText, decodedResult) => {
-                if (scannerActive) {
-                    scannerActive = false;
-                    closeScanner();
-                    handleBarcodeResult(decodedText, scannerContext);
-                }
-            },
-            (errorMessage) => {
-                // Keep scanning, silently ignore errors
-            }
-        );
+await codeReader.start(
+    { facingMode: "environment" }, // back camera
+    { 
+        fps: 5,  // SLOWER = more detection time
+        qrbox: { width: 300, height: 120 }  // WIDER BOX for barcodes (not square)
+    },
+    (decodedText, decodedResult) => {
+        if (scannerActive && decodedText && decodedText.trim().length > 0) {
+            scannerActive = false;
+            console.log("✅ Barcode detected: " + decodedText);  // Debug log
+            closeScanner();
+            handleBarcodeResult(decodedText, scannerContext);
+        }
+    },
+    (errorMessage) => {
+        // Silently keep scanning
+    }
+);
     } catch(e) {
         showToast('❌ Camera error: ' + e.message + '. Use manual input below.');
     }
