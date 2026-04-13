@@ -827,6 +827,7 @@ if ('serviceWorker' in navigator) {
     };
     </script>
 
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 </head>
 <body class="bg-earth-50 dark:bg-slate-950 font-sans transition-colors duration-500 overflow-hidden text-earth-900 dark:text-white text-sm">
 
@@ -970,9 +971,55 @@ if ('serviceWorker' in navigator) {
       #install-modal.open { display: flex !important; }
     </style>
 
-    <div id="offline-notice">
+  <div id="offline-notice">
         You are offline • Data is saved locally
     </div>
+
+    <!-- BARCODE SCANNER OVERLAY -->
+    <div id="barcode-scanner-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:99998;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="position:relative;width:100%;max-width:480px;padding:1.5rem;">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+                <div>
+                    <p style="font-size:1rem;font-weight:900;color:white;margin:0;">Scan Barcode</p>
+                    <p id="scanner-subtitle" style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.5);margin:4px 0 0;text-transform:uppercase;letter-spacing:0.1em;">Point camera at barcode</p>
+                </div>
+                <button onclick="closeScanner()" style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.15);border:none;color:white;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+            <!-- Camera feed -->
+            <div style="position:relative;border-radius:1.5rem;overflow:hidden;background:#111;aspect-ratio:1;">
+                <video id="scanner-video" style="width:100%;height:100%;object-fit:cover;" playsinline autoplay muted></video>
+                <!-- Scan frame overlay -->
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);"></div>
+                    <div id="scan-frame" style="position:relative;width:65%;aspect-ratio:2;z-index:2;">
+                        <!-- Corner brackets -->
+                        <div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:3px solid #00e676;border-left:3px solid #00e676;border-radius:4px 0 0 0;"></div>
+                        <div style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:3px solid #00e676;border-right:3px solid #00e676;border-radius:0 4px 0 0;"></div>
+                        <div style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:3px solid #00e676;border-left:3px solid #00e676;border-radius:0 0 0 4px;"></div>
+                        <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:3px solid #00e676;border-right:3px solid #00e676;border-radius:0 0 4px 0;"></div>
+                        <!-- Scan line animation -->
+                        <div id="scan-line" style="position:absolute;left:4px;right:4px;height:2px;background:linear-gradient(90deg,transparent,#00e676,transparent);animation:scanLine 1.8s ease-in-out infinite;top:50%;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Manual input fallback -->
+            <div style="margin-top:1.25rem;">
+                <p style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;text-align:center;margin-bottom:0.75rem;">Or type/paste barcode manually</p>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="manual-barcode-input" placeholder="Enter barcode number..." style="flex:1;padding:12px 16px;border-radius:14px;background:#1a1a1a;border:1px solid #333;color:white;font-size:14px;font-weight:700;outline:none;" onkeydown="if(event.key==='Enter') confirmManualBarcode()">
+                    <button onclick="confirmManualBarcode()" style="padding:12px 20px;border-radius:14px;background:#059669;border:none;color:white;font-weight:900;font-size:13px;cursor:pointer;">Go</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes scanLine {
+            0% { top: 10%; opacity: 1; }
+            50% { top: 90%; opacity: 1; }
+            100% { top: 10%; opacity: 1; }
+        }
+    </style>
 
     <!-- ACTIVATION SCREEN -->
     <div id="activation-screen" style="display: none;">
@@ -1116,7 +1163,10 @@ if ('serviceWorker' in navigator) {
                 <div id="pos-view" class="p-4">
                     <div class="relative mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(74,68,58,0.3);" class="absolute left-4 top-1\/2 w-5 h-5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-                        <input type="text" id="pos-search" oninput="handleSearch(this.value)" placeholder="Search items..." class="w-full p-4 pl-12 bg-white dark:bg-slate-900 border border-earth-100 dark:border-slate-800 outline-none font-bold text-earth-900 dark:text-slate-300 shadow-sm text-center" style="border-radius:1.5rem;">
+                       <input type="text" id="pos-search" oninput="handleSearch(this.value)" placeholder="Search or scan barcode..." class="w-full p-4 pl-12 bg-white dark:bg-slate-900 border border-earth-100 dark:border-slate-800 outline-none font-bold text-earth-900 dark:text-slate-300 shadow-sm text-center" style="border-radius:1.5rem;padding-right:3.5rem;">
+                        <button onclick="openScanMethodPicker('pos')" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+                        </button>
                     </div>
                     <nav id="category-nav" class="flex gap-3 mb-6 overflow-x-auto scrollbar-hide py-2">
                 <button onclick="setCat('All')" style="padding:0.5rem 1.5rem;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;white-space:nowrap;transition:all 0.2s;background:#059669;color:white;box-shadow:0 4px 12px rgba(5,150,105,0.3);">
@@ -1415,9 +1465,19 @@ if ('serviceWorker' in navigator) {
 
         <div style="padding:1.25rem 1.4rem; display:flex; flex-direction:column; gap:13px; overflow-y:auto;">
 
-            <div>
+<div>
                 <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Item Name</p>
                 <input type="text" id="add-name" placeholder="e.g. Coca Cola 500ml" style="width:100%; box-sizing:border-box; padding:11px 16px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-weight:900; font-size:14px; text-align:center; outline:none;">
+            </div>
+
+            <div>
+                <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Barcode (optional)</p>
+                <div style="position:relative;">
+                    <input type="text" id="add-barcode" placeholder="Scan or type barcode..." style="width:100%; box-sizing:border-box; padding:11px 48px 11px 16px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-weight:700; font-size:14px; text-align:center; outline:none;">
+                    <button onclick="openScanMethodPicker('addstock')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+                    </button>
+                </div>
             </div>
 
             <div style="height:0.5px; background:#f0ece0;"></div>
@@ -2926,7 +2986,8 @@ function selectAddCat(cat) {
             setAddCaseSize(12);
             setAddMixedCase(12);
             setAddMarginTarget(30);
-            document.getElementById('add-name').value = '';
+    document.getElementById('add-name').value = '';
+            document.getElementById('add-barcode').value = '';
             document.getElementById('add-cost').value = '';
             document.getElementById('add-price').value = '';
             document.getElementById('add-stock').value = '24';
@@ -2954,7 +3015,8 @@ function selectAddCat(cat) {
             if (!name || isNaN(price) || price <= 0) return showToast("Fill item name and sell price");
             if (!cat) return showToast("Select a category");
             if (units <= 0) return showToast("Enter stock quantity");
-            const item = { id: Date.now(), name, cost, price, stock: units, cat };
+           const barcode = document.getElementById('add-barcode').value.trim();
+            const item = { id: Date.now(), name, cost, price, stock: units, cat, barcode: barcode || null }; 
             items.push(item);
             await dbSave('items', item);
             showToast("Item Added");
@@ -3800,6 +3862,187 @@ function selectAddCat(cat) {
                 ? `https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`
                 : `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
+        }
+
+      // ================================================================
+        // BARCODE SCANNER SYSTEM
+        // ================================================================
+        let scannerActive = false;
+        let codeReader = null;
+        let scannerContext = null; // 'pos', 'addstock', 'stockupdate'
+
+        function openScanMethodPicker(context) {
+            scannerContext = context;
+            showConfirm('How do you want to scan?', null);
+            // Repurpose confirm modal for method picker
+            const modal = document.getElementById('qty-popup-modal');
+            document.getElementById('qty-popup-title').innerText = '📦 Scan Barcode';
+            document.getElementById('qty-popup-price').innerText = 'Choose your scanning method';
+            document.getElementById('qty-popup-input').style.display = 'none';
+            document.getElementById('qty-popup-max').innerText = '';
+            document.getElementById('qty-popup-cancel').innerText = '📷 Camera';
+            document.getElementById('qty-popup-confirm').innerText = '⌨️ Type / USB';
+            document.getElementById('qty-popup-confirm').style.background = '#0284c7';
+            modal.style.display = 'flex';
+            document.getElementById('qty-popup-cancel').onclick = () => {
+                modal.style.display = 'none';
+                resetQtyPopup();
+                openCameraScanner(context);
+            };
+            document.getElementById('qty-popup-confirm').onclick = () => {
+                modal.style.display = 'none';
+                resetQtyPopup();
+                openUSBMode(context);
+            };
+        }
+
+        function resetQtyPopup() {
+            document.getElementById('qty-popup-input').style.display = '';
+            document.getElementById('qty-popup-cancel').innerText = 'Cancel';
+            document.getElementById('qty-popup-confirm').innerText = 'Set Qty';
+            document.getElementById('qty-popup-confirm').style.background = '#059669';
+        }
+
+        function openUSBMode(context) {
+            if (context === 'pos') {
+                const searchEl = document.getElementById('pos-search');
+                searchEl.value = '';
+                searchEl.focus();
+                showToast('⌨️ Ready — type or scan with USB scanner');
+                // Listen for Enter key to trigger barcode search
+                searchEl.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        const val = searchEl.value.trim();
+                        if (val) processBarcodeOnPOS(val);
+                        searchEl.onkeydown = null;
+                    }
+                };
+            } else if (context === 'addstock') {
+                const bc = document.getElementById('add-barcode');
+                bc.focus();
+                showToast('⌨️ Type or scan barcode with USB scanner');
+            } else if (context === 'stockupdate') {
+                showToast('⌨️ Type barcode in search, then press Enter');
+            }
+        }
+
+        async function openCameraScanner(context) {
+            scannerContext = context;
+            const overlay = document.getElementById('barcode-scanner-overlay');
+            overlay.style.display = 'flex';
+            document.getElementById('manual-barcode-input').value = '';
+
+            const subtitles = {
+                pos: 'Scan item to add to cart',
+                addstock: 'Scan barcode to fill in product',
+                stockupdate: 'Scan item to restock'
+            };
+            document.getElementById('scanner-subtitle').innerText = subtitles[context] || 'Point camera at barcode';
+
+            try {
+                if (typeof ZXing === 'undefined') {
+                    showToast('Scanner library not loaded. Use manual input.');
+                    return;
+                }
+                codeReader = new ZXing.BrowserMultiFormatReader();
+                scannerActive = true;
+                const videoEl = document.getElementById('scanner-video');
+
+                await codeReader.decodeFromVideoDevice(null, videoEl, (result, err) => {
+                    if (result && scannerActive) {
+                        scannerActive = false;
+                        const barcode = result.getText();
+                        closeScanner();
+                        handleBarcodeResult(barcode, scannerContext);
+                    }
+                });
+            } catch(e) {
+                showToast('Camera not available. Use manual input below.');
+            }
+        }
+
+        function closeScanner() {
+            scannerActive = false;
+            if (codeReader) {
+                try { codeReader.reset(); } catch(e) {}
+                codeReader = null;
+            }
+            const video = document.getElementById('scanner-video');
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(t => t.stop());
+                video.srcObject = null;
+            }
+            document.getElementById('barcode-scanner-overlay').style.display = 'none';
+        }
+
+        function confirmManualBarcode() {
+            const val = document.getElementById('manual-barcode-input').value.trim();
+            if (!val) return;
+            closeScanner();
+            handleBarcodeResult(val, scannerContext);
+        }
+
+        function handleBarcodeResult(barcode, context) {
+            if (context === 'pos') {
+                processBarcodeOnPOS(barcode);
+            } else if (context === 'addstock') {
+                document.getElementById('add-barcode').value = barcode;
+                showToast('✅ Barcode scanned: ' + barcode);
+            } else if (context === 'stockupdate') {
+                processBarcodeForRestock(barcode);
+            }
+        }
+
+        function processBarcodeOnPOS(barcode) {
+            // Search by barcode field first, then by name
+            const item = items.find(i => i.barcode && i.barcode === barcode)
+                || items.find(i => i.name.toLowerCase().includes(barcode.toLowerCase()));
+
+            if (item) {
+                if (item.stock <= (cart[item.id] || 0)) {
+                    showToast('⚠️ ' + item.name + ' is out of stock!');
+                    return;
+                }
+                cart[item.id] = (cart[item.id] || 0) + 1;
+                updateTotals();
+                renderGrid();
+                showToast('✅ Added: ' + item.name);
+                // Clear search
+                document.getElementById('pos-search').value = '';
+                handleSearch('');
+            } else {
+                // Not found — offer to add as new item
+                const modal = document.getElementById('qty-popup-modal');
+                document.getElementById('qty-popup-title').innerText = 'Barcode Not Found';
+                document.getElementById('qty-popup-price').innerText = `"${barcode}" — Add as new item?`;
+                document.getElementById('qty-popup-input').style.display = 'none';
+                document.getElementById('qty-popup-max').innerText = '';
+                document.getElementById('qty-popup-cancel').innerText = 'Cancel';
+                document.getElementById('qty-popup-confirm').innerText = 'Add Item';
+                document.getElementById('qty-popup-confirm').style.background = '#059669';
+                modal.style.display = 'flex';
+                document.getElementById('qty-popup-cancel').onclick = () => { modal.style.display = 'none'; resetQtyPopup(); };
+                document.getElementById('qty-popup-confirm').onclick = () => {
+                    modal.style.display = 'none';
+                    resetQtyPopup();
+                    openAddItemModal();
+                    setTimeout(() => {
+                        document.getElementById('add-barcode').value = barcode;
+                    }, 100);
+                };
+            }
+        }
+
+        function processBarcodeForRestock(barcode) {
+            const item = items.find(i => i.barcode && i.barcode === barcode)
+                || items.find(i => i.name.toLowerCase().includes(barcode.toLowerCase()));
+            if (item) {
+                toggleView('inventory');
+                setTimeout(() => openStockUpdateModal(item.id, item.stock), 200);
+                showToast('✅ Found: ' + item.name);
+            } else {
+                showToast('❌ No item with barcode: ' + barcode);
+            }
         }
 
         // Modified init — called after license check passes
