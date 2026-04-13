@@ -3945,75 +3945,43 @@ async function openCameraScanner(context) {
             return;
         }
 
-        // REQUEST CAMERA PERMISSION FIRST
+    // Stop any existing scanner before starting new one
+    if (codeReader) {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" } 
-            });
-            // Stop the stream after permission is granted
-            stream.getTracks().forEach(track => track.stop());
-            console.log("✅ Camera permission granted");
-        } catch(permissionError) {
-            showToast("❌ Camera permission denied. Allow camera access in your browser settings.");
-            console.log("Permission error:", permissionError.message);
-            overlay.style.display = 'none';
-            return;
-        }
-
-        // Stop any existing scanner before starting new one
-        if (codeReader) {
-            try {
-                await codeReader.stop();
-                codeReader = null;
-            } catch(e) {}
-        }
+            await codeReader.stop();
+            codeReader = null;
+        } catch(e) {}
+    }
 
         scannerActive = true;
         codeReader = new Html5Qrcode("scanner-video");
-// Use any available camera (front or back)
-const isDesktop = /Windows|Mac|Linux/.test(navigator.userAgent);
-const constraints = isDesktop 
-    ? { video: true } // Desktop: use any camera
-    : { video: { facingMode: "environment" } }; // Mobile: use back camera
-
 await codeReader.start(
-    constraints,
+    { facingMode: "environment" }, // back camera
     { 
-        fps: 5,
-        qrbox: { width: 300, height: 100 }
+        fps: 5,  // SLOWER = more detection time
+        qrbox: { width: 300, height: 120 }  // WIDER BOX for barcodes (not square)
     },
-    (decodedText, decodedResult) => {
-        if (scannerActive && decodedText && decodedText.trim().length > 0) {
-            scannerActive = false;  // Pause scanning briefly
-            console.log("✅ Barcode detected: " + decodedText);
-            handleBarcodeResult(decodedText, scannerContext);
-            
-            // Re-enable scanning after 1 second (so you can scan next item)
-            setTimeout(() => {
-                scannerActive = true;
-                console.log("🔄 Ready for next scan...");
-            }, 1000);
-        }
-    },
+  (decodedText, decodedResult) => {
+    if (scannerActive && decodedText && decodedText.trim().length > 0) {
+        scannerActive = false;  // Pause scanning briefly
+        console.log("✅ Barcode detected: " + decodedText);
+        handleBarcodeResult(decodedText, scannerContext);
+        
+        // Re-enable scanning after 1 second (so you can scan next item)
+        setTimeout(() => {
+            scannerActive = true;
+            console.log("🔄 Ready for next scan...");
+        }, 1000);
+    }
+},
     (errorMessage) => {
         // Silently keep scanning
     }
 );
-} catch(e) {
-    console.error("Scanner error:", e);
-    showToast('❌ Camera error: ' + e.message);
-    overlay.style.display = 'none';
-    
-    // Show helpful message based on error type
-    if (e.name === 'NotAllowedError') {
-        showToast('❌ Camera permission denied. Check browser settings.');
-    } else if (e.name === 'NotFoundError') {
-        showToast('❌ No camera found on this device.');
-    } else if (e.name === 'NotReadableError') {
-        showToast('❌ Camera is already in use by another app.');
+    } catch(e) {
+        showToast('❌ Camera error: ' + e.message + '. Use manual input below.');
     }
 }
-
 
 function closeScanner() {
     scannerActive = false;
