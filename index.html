@@ -984,7 +984,7 @@ if ('serviceWorker' in navigator) {
                     <p style="font-size:1rem;font-weight:900;color:white;margin:0;">Scan Barcode</p>
                     <p id="scanner-subtitle" style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.5);margin:4px 0 0;text-transform:uppercase;letter-spacing:0.1em;">Point camera at barcode</p>
                 </div>
-                <button onclick="closeScanner()" style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.15);border:none;color:white;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+              <button onclick="closeBarcodeScannerOverlay()" style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.15);border:none;color:white;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
             </div>
             <!-- Camera feed -->
             <div style="position:relative;border-radius:1.5rem;overflow:hidden;background:#111;aspect-ratio:1;">
@@ -3945,6 +3945,14 @@ async function openCameraScanner(context) {
             return;
         }
 
+    // Stop any existing scanner before starting new one
+    if (codeReader) {
+        try {
+            await codeReader.stop();
+            codeReader = null;
+        } catch(e) {}
+    }
+
         scannerActive = true;
         codeReader = new Html5Qrcode("scanner-video");
 await codeReader.start(
@@ -3953,14 +3961,19 @@ await codeReader.start(
         fps: 5,  // SLOWER = more detection time
         qrbox: { width: 300, height: 120 }  // WIDER BOX for barcodes (not square)
     },
-    (decodedText, decodedResult) => {
-        if (scannerActive && decodedText && decodedText.trim().length > 0) {
-            scannerActive = false;
-            console.log("✅ Barcode detected: " + decodedText);  // Debug log
-            closeScanner();
-            handleBarcodeResult(decodedText, scannerContext);
-        }
-    },
+  (decodedText, decodedResult) => {
+    if (scannerActive && decodedText && decodedText.trim().length > 0) {
+        scannerActive = false;  // Pause scanning briefly
+        console.log("✅ Barcode detected: " + decodedText);
+        handleBarcodeResult(decodedText, scannerContext);
+        
+        // Re-enable scanning after 1 second (so you can scan next item)
+        setTimeout(() => {
+            scannerActive = true;
+            console.log("🔄 Ready for next scan...");
+        }, 1000);
+    }
+},
     (errorMessage) => {
         // Silently keep scanning
     }
@@ -3984,6 +3997,17 @@ function closeScanner() {
         }
     }
     document.getElementById('barcode-scanner-overlay').style.display = 'none';
+}
+
+// NEW: Close button handler — only close overlay, not the scanner
+function closeBarcodeScannerOverlay() {
+    document.getElementById('barcode-scanner-overlay').style.display = 'none';
+    if (codeReader) {
+        try {
+            codeReader.stop();
+            codeReader = null;
+        } catch(e) {}
+    }
 }
 
         function confirmManualBarcode() {
