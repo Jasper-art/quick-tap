@@ -635,6 +635,7 @@ if ('serviceWorker' in navigator) {
             display: none;
         }
         #license-footer span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(5,150,105,0.7); }
+        @media (min-width: 1024px) { #mobile-pay-btn-wrap { display: none !important; } }
     </style>
 
     <!-- ============================================================
@@ -1432,7 +1433,7 @@ if ('serviceWorker' in navigator) {
             <div style="height:0.5px; background:#f0ece0;"></div>
 
             <div>
-                <p style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Total Cost Paid to Supplier (K)</p>
+                <p id="add-cost-label" style="font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(74,68,58,0.5); margin-bottom:6px;">Total Cost Paid to Supplier (K)</p>
                 <div style="position:relative;">
                     <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:900; color:#059669;">K</span>
                     <input type="number" id="add-cost" oninput="updateAddMargin()" placeholder="0" style="width:100%; box-sizing:border-box; padding:11px 11px 11px 28px; border-radius:14px; border:1px solid #f0ece0; background:#f7f3e9; font-size:22px; font-weight:900; text-align:center; outline:none;">
@@ -2750,7 +2751,7 @@ let addMode = 'units';
         let addMarginTarget = 30;
         let addSelectedCat = 'Grocery';
 
-        function setAddMode(m) {
+  function setAddMode(m) {
             addMode = m;
             ['units','cases','mixed'].forEach(x => {
                 const btn = document.getElementById('add-mode-' + x);
@@ -2759,6 +2760,8 @@ let addMode = 'units';
                 btn.style.border = x === m ? 'none' : '1px solid #f0ece0';
                 document.getElementById('add-' + x + '-section').style.display = x === m ? 'block' : 'none';
             });
+            const lbl = document.getElementById('add-cost-label');
+            if (lbl) lbl.innerText = m === 'units' ? 'Cost Price Per Unit (K)' : 'Total Cost Paid to Supplier (K)';
             calcAddStock();
         }
 
@@ -2803,11 +2806,11 @@ let addMode = 'units';
 
         function calcAddStock() { updateAddMargin(); }
 
-        function applyAddMargin() {
+     function applyAddMargin() {
             const totalCost = parseFloat(document.getElementById('add-cost').value) || 0;
             const units = getAddUnits();
             if (!totalCost || !units) return;
-            const cpu = totalCost / units;
+            const cpu = addMode === 'units' ? totalCost : totalCost / units;
             const suggested = Math.ceil(cpu / (1 - addMarginTarget / 100));
             document.getElementById('add-price').value = suggested;
             updateAddMargin();
@@ -2817,7 +2820,7 @@ let addMode = 'units';
             const units = getAddUnits();
             const totalCost = parseFloat(document.getElementById('add-cost').value) || 0;
             const price = parseFloat(document.getElementById('add-price').value) || 0;
-            const cpu = units > 0 && totalCost > 0 ? totalCost / units : 0;
+           const cpu = addMode === 'units' ? totalCost : (units > 0 && totalCost > 0 ? totalCost / units : 0);
             const valEl = document.getElementById('add-margin-val');
             const boxEl = document.getElementById('add-margin-box');
             const cpuLabel = document.getElementById('add-cost-per-unit');
@@ -2910,7 +2913,7 @@ function selectAddCat(cat) {
             const cat = addSelectedCat === '__new__'
                 ? document.getElementById('add-custom-cat').value.trim()
                 : addSelectedCat;
-            const cost = units > 0 && totalCost > 0 ? parseFloat((totalCost / units).toFixed(2)) : totalCost;
+         const cost = addMode === 'units' ? totalCost : (units > 0 && totalCost > 0 ? parseFloat((totalCost / units).toFixed(2)) : 0);
             if (!name || isNaN(price) || price <= 0) return showToast("Fill item name and sell price");
             if (!cat) return showToast("Select a category");
             if (units <= 0) return showToast("Enter stock quantity");
