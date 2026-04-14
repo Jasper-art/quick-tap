@@ -4123,43 +4123,24 @@ function processBarcodeOnPOS(barcode) {
     }
 }
 
-                function processBarcodeOnPOS(barcode) {
-                    // Search by barcode field first, then by name
-                    const item = items.find(i => i.barcode && i.barcode === barcode)
-                        || items.find(i => i.name.toLowerCase().includes(barcode.toLowerCase()));
-
-                    if (item) {
-                        if (item.stock <= (cart[item.id] || 0)) {
-                            showToast('⚠️ ' + item.name + ' is out of stock!');
-                            return;
+function handleBarcodeResult(barcode, context) {
+                    if (context === 'pos') {
+                        processBarcodeOnPOS(barcode);
+                    } else if (context === 'addstock') {
+                        document.getElementById('add-barcode').value = barcode;
+                        showToast('✅ Barcode scanned: ' + barcode);
+                    } else if (context === 'stockupdate') {
+                        processBarcodeForRestock(barcode);
+                    } else if (context === 'checkprice') {
+                        const item = items.find(i => i.barcode && i.barcode === barcode)
+                            || items.find(i => i.name.toLowerCase().includes(barcode.toLowerCase()));
+                        if (item) {
+                            showToast(`💰 ${item.name} — K${item.price} (Stock: ${item.stock})`);
+                        } else {
+                            showToast(`❌ No item found for: ${barcode}`);
                         }
-                        cart[item.id] = (cart[item.id] || 0) + 1;
-                        updateTotals();
-                        renderGrid();
-                        showToast('✅ Added: ' + item.name);
-                        // Clear search
-                        document.getElementById('pos-search').value = '';
-                        handleSearch('');
-                    } else {
-                        // Not found — offer to add as new item
-                        const modal = document.getElementById('qty-popup-modal');
-                        document.getElementById('qty-popup-title').innerText = 'Barcode Not Found';
-                        document.getElementById('qty-popup-price').innerText = `"${barcode}" — Add as new item?`;
-                        document.getElementById('qty-popup-input').style.display = 'none';
-                        document.getElementById('qty-popup-max').innerText = '';
-                        document.getElementById('qty-popup-cancel').innerText = 'Cancel';
-                        document.getElementById('qty-popup-confirm').innerText = 'Add Item';
-                        document.getElementById('qty-popup-confirm').style.background = '#059669';
-                        modal.style.display = 'flex';
-                        document.getElementById('qty-popup-cancel').onclick = () => { modal.style.display = 'none'; resetQtyPopup(); };
-                        document.getElementById('qty-popup-confirm').onclick = () => {
-                            modal.style.display = 'none';
-                            resetQtyPopup();
-                            openAddItemModal();
-                            setTimeout(() => {
-                                document.getElementById('add-barcode').value = barcode;
-                            }, 100);
-                        };
+                    } else if (context === 'quickstock') {
+                        processBarcodeForRestock(barcode);
                     }
                 }
 
