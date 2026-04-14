@@ -3872,30 +3872,43 @@
                 let codeReader = null;
                 let scannerContext = null; // 'pos', 'addstock', 'stockupdate'
 
-                function openScanMethodPicker(context) {
-                    scannerContext = context;
-                    showConfirm('How do you want to scan?', null);
-                    // Repurpose confirm modal for method picker
-                    const modal = document.getElementById('qty-popup-modal');
-                    document.getElementById('qty-popup-title').innerText = '📦 Scan Barcode';
-                    document.getElementById('qty-popup-price').innerText = 'Choose your scanning method';
-                    document.getElementById('qty-popup-input').style.display = 'none';
-                    document.getElementById('qty-popup-max').innerText = '';
-                    document.getElementById('qty-popup-cancel').innerText = '📷 Camera';
-                    document.getElementById('qty-popup-confirm').innerText = '⌨️ Type / USB';
-                    document.getElementById('qty-popup-confirm').style.background = '#0284c7';
-                    modal.style.display = 'flex';
-                    document.getElementById('qty-popup-cancel').onclick = () => {
-                        modal.style.display = 'none';
-                        resetQtyPopup();
-                        openCameraScanner(context);
-                    };
-                    document.getElementById('qty-popup-confirm').onclick = () => {
-                        modal.style.display = 'none';
-                        resetQtyPopup();
-                        openUSBMode(context);
-                    };
-                }
+  let sessionScanCount = 0;
+
+function openScanMethodPicker(context) {
+    scannerContext = context;
+    const modal = document.getElementById('qty-popup-modal');
+    document.getElementById('qty-popup-title').innerText = '📦 Scan Barcode';
+    document.getElementById('qty-popup-price').innerText = 'Choose scanning method';
+    document.getElementById('qty-popup-input').style.display = 'none';
+    document.getElementById('qty-popup-max').innerText = '';
+
+    // Build 4 option buttons inside modal
+    modal.querySelector('.grid').innerHTML = `
+        <button onclick="closeScanPicker(); openCameraScanner('${context}')" 
+            style="padding:12px;border-radius:12px;border:none;background:#059669;color:white;font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
+            📷 Camera
+        </button>
+        <button onclick="closeScanPicker(); openUSBMode('${context}')" 
+            style="padding:12px;border-radius:12px;border:none;background:#0284c7;color:white;font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
+            ⌨️ USB / Type
+        </button>
+        <button onclick="closeScanPicker(); openCameraScanner('checkprice')" 
+            style="padding:12px;border-radius:12px;border:none;background:#f59e0b;color:white;font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
+            💰 Check Price
+        </button>
+        <button onclick="closeScanPicker(); openCameraScanner('quickstock')" 
+            style="padding:12px;border-radius:12px;border:none;background:#7c3aed;color:white;font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
+            📦 Quick Restock
+        </button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function closeScanPicker() {
+    const modal = document.getElementById('qty-popup-modal');
+    modal.style.display = 'none';
+    resetQtyPopup();
+}
 
                 function resetQtyPopup() {
                     document.getElementById('qty-popup-input').style.display = '';
@@ -3953,7 +3966,8 @@
                 }
 
                 scannerActive = true;
-                codeReader = new Html5Qrcode("scanner-video");
+sessionScanCount = 0;
+codeReader = new Html5Qrcode("scanner-video");
 
                 // Optimized for real shop product barcodes (EAN-13, Code128, etc.)
                 await codeReader.start(
@@ -3973,16 +3987,34 @@
                         ]
                     },
                     (decodedText, decodedResult) => {
-                        if (scannerActive && decodedText && decodedText.trim().length > 4) {
-                            scannerActive = false;
-                            console.log("✅ Barcode scanned:", decodedText);
-                            handleBarcodeResult(decodedText, scannerContext);
-                            
-                            // Auto close after successful scan
-                            setTimeout(() => {
-                                closeBarcodeScannerOverlay();
-                            }, 700);
-                        }
+if (scannerActive && decodedText && decodedText.trim().length > 4) {
+    scannerActive = false;
+
+    // Vibrate on scan
+    if (navigator.vibrate) navigator.vibrate(80);
+
+    // Beep on scan
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 1200;
+        gain.gain.value = 0.3;
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+    } catch(e) {}
+
+    // Count this scan
+    sessionScanCount++;
+    document.getElementById('scanner-subtitle').innerText = 
+        `✅ ${sessionScanCount} scanned • Scan next or tap ✕`;
+
+    handleBarcodeResult(decodedText, scannerContext);
+
+    setTimeout(() => { scannerActive = true; }, 1500);
+}
                     },
                     (error) => {
                         // Silent - keep trying
@@ -4031,16 +4063,26 @@
                     handleBarcodeResult(val, scannerContext);
                 }
 
-                function handleBarcodeResult(barcode, context) {
-                    if (context === 'pos') {
-                        processBarcodeOnPOS(barcode);
-                    } else if (context === 'addstock') {
-                        document.getElementById('add-barcode').value = barcode;
-                        showToast('✅ Barcode scanned: ' + barcode);
-                    } else if (context === 'stockupdate') {
-                        processBarcodeForRestock(barcode);
-                    }
-                }
+              function handleBarcodeResult(barcode, context) {
+    if (context === 'pos') {
+        processBarcodeOnPOS(barcode);
+    } else if (context === 'addstock') {
+        document.getElementById('add-barcode').value = barcode;
+        showToast('✅ Barcode scanned: ' + barcode);
+    } else if (context === 'stockupdate') {
+        processBarcodeForRestock(barcode);
+    } else if (context === 'checkprice') {
+        const item = items.find(i => i.barcode && i.barcode === barcode)
+            || items.find(i => i.name.toLowerCase().includes(barcode.toLowerCase()));
+        if (item) {
+            showToast(`💰 ${item.name} — K${item.price} (Stock: ${item.stock})`);
+        } else {
+            showToast(`❌ No item found for: ${barcode}`);
+        }
+    } else if (context === 'quickstock') {
+        processBarcodeForRestock(barcode);
+    }
+}
 
                 function processBarcodeOnPOS(barcode) {
                     // Search by barcode field first, then by name
