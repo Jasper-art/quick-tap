@@ -3910,15 +3910,17 @@ function openScanMethodPicker(context) {
 function closeScanPicker() {
     const modal = document.getElementById('qty-popup-modal');
     modal.style.display = 'none';
-    resetQtyPopup();
 }
-
-                function resetQtyPopup() {
-                    document.getElementById('qty-popup-input').style.display = '';
-                    document.getElementById('qty-popup-cancel').innerText = 'Cancel';
-                    document.getElementById('qty-popup-confirm').innerText = 'Set Qty';
-                    document.getElementById('qty-popup-confirm').style.background = '#059669';
-                }
+function resetQtyPopup() {
+    const qtyInput = document.getElementById('qty-popup-input');
+    const cancelBtn = document.getElementById('qty-popup-cancel');
+    const confirmBtn = document.getElementById('qty-popup-confirm');
+    
+    if (qtyInput) qtyInput.value = '';
+    if (cancelBtn) cancelBtn.innerText = 'Cancel';
+    if (confirmBtn) confirmBtn.innerText = 'Confirm';
+    if (confirmBtn) confirmBtn.style.background = '#059669';
+}
 
                 function openUSBMode(context) {
                     if (context === 'pos') {
